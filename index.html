@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rēzekne Street Cleanliness Map</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    body { margin: 0; }
+    #map { height: 100vh; }
+    .control-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="control-panel" id="panel" style="display:none;">
+  <strong>Street Status</strong><br>
+  <label>
+    <input type="checkbox" id="carsCheck"> Unclean for Cars
+  </label><br>
+  <label>
+    <input type="checkbox" id="pedCheck"> Unclean for Pedestrians
+  </label><br>
+  <button onclick="applyStatus()">Apply</button>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([56.5100, 27.3400], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let streetLayer;
+let selectedLayer = null;
+let streetStates = {};
+let streetLayersById = {}; // keep track of each layer by street id
+
+// Color logic
+function getColor(state) {
+  if (!state) return "#3388ff";
+  if (state.cars && state.ped) return "red";
+  if (state.cars) return "yellow";
+  if (state.ped) return "purple";
+  return "#3388ff";
+}
+
+// Load all streets in Rēzekne once
+async function loadStreets() {
+  const query = `
+    [out:json][timeout:25];
+    (
+      way["highway"](56.45,27.25,56.55,27.42);
+    );
+    out geom;
+  `;
+
+  const response = await fetch("https://overpass-api.de/api/interpreter", {
+    method: "POST",
+    body: query
+  });
+
+  const data = await response.json();
+
+  const geojson = {
+    type: "FeatureCollection",
+    features: data.elements.map(el => ({
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: el.geometry.map(g => [g.lon, g.lat])
+      },
+      properties: { id: el.id }
+    }))
+  };
+
+  streetLayer = L.geoJSON(geojson, {
+    style: feature => {
+      const state = streetStates[feature.properties.id];
+      return { color: getColor(state), weight: 5 };
+    },
+    onEachFeature: (feature, layer) => {
+      const id = feature.properties.id;
+      streetLayersById[id] = layer; // store reference
+      layer.on("click", () => {
+        selectedLayer = layer;
+        const state = streetStates[id] || { cars:false, ped:false };
+        document.getElementById("carsCheck").checked = state.cars;
+        document.getElementById("pedCheck").checked = state.ped;
+        document.getElementById("panel").style.display = "block";
+      });
+    }
+  }).addTo(map);
+}
+
+function applyStatus() {
+  if (!selectedLayer) return;
+
+  const id = selectedLayer.feature.properties.id;
+
+  // Save state
+  streetStates[id] = {
+    cars: document.getElementById("carsCheck").checked,
+    ped: document.getElementById("pedCheck").checked
+  };
+
+  // Update only this layer
+  selectedLayer.setStyle({
+    color: getColor(streetStates[id]),
+    weight: 5
+  });
+
+  document.getElementById("panel").style.display = "none";
+}
+
+loadStreets();
+
+</script>
+
+</body>
+</html>
