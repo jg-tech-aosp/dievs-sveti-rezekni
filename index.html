@@ -47,6 +47,18 @@
       margin-top: 10px;
       text-align: center;
     }
+
+    /* Styles for the promo section */
+    .promo-container {
+      margin-top: 10px;
+      display: flex;
+      gap: 5px;
+    }
+    .promo-container input {
+      flex: 1;
+      padding: 5px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -56,15 +68,21 @@
 <div class="control-panel" id="panel" style="display:none;">
   <strong>Street Status</strong><br>
   <label>
-    <input type="checkbox" id="carsCheck"> Netīra iela braucējiem
+    <input type="checkbox" id="carsCheck"> Unclean for Cars
   </label><br>
   
   <div id="pedSection" class="disabled-feature">
     <label>
-      <input type="checkbox" id="pedCheck" disabled> Netīra iela gājējiem
+      <input type="checkbox" id="pedCheck" disabled> Unclean for Pedestrians
     </label>
+    
     <div id="pay-notice">
-      <p style="margin: 5px 0;">💰 Maksājiet 0.67 EUR par gājēju funkciju.</p>
+      <div class="promo-container">
+        <input type="text" id="promoInput" placeholder="Secret Code?">
+        <button onclick="checkPromo()">Go</button>
+      </div>
+
+      <p style="margin: 5px 0;">💰 Pay 0.67 EUR to unlock Pedestrian reporting.</p>
       <div id="paypal-button-container"></div>
     </div>
   </div>
@@ -89,8 +107,19 @@ let streetLayersById = {};
 
 // 1. INITIAL CHECK: Look for previous payment on load
 if (localStorage.getItem('pedestrian_unlocked') === 'true') {
-  // We use a timeout to ensure the DOM is ready
   setTimeout(unlockPedestrianFeature, 100);
+}
+
+// Secret Promo Code Logic
+function checkPromo() {
+  const code = document.getElementById("promoInput").value;
+  // Change "REZ777" to whatever secret code you want
+  if (code === "BURGER67") {
+    alert("Code accepted! Features unlocked.");
+    unlockPedestrianFeature();
+  } else {
+    alert("Wrong code. Pay up!");
+  }
 }
 
 paypal.Buttons({
@@ -111,8 +140,6 @@ paypal.Buttons({
 
 function unlockPedestrianFeature() {
   isPedestrianUnlocked = true;
-  
-  // 2. PERSISTENCE: Save to local storage
   localStorage.setItem('pedestrian_unlocked', 'true');
   
   const pedCheck = document.getElementById("pedCheck");
@@ -124,7 +151,6 @@ function unlockPedestrianFeature() {
   if (pedSection) pedSection.classList.remove("disabled-feature");
 }
 
-// Admin function to relock for testing
 function relock() {
   const confirmation = confirm("⚠️ WARNING: This will lock the Pedestrian reporting feature. You will have to PAY AGAIN to unlock it. Are you sure you want to waste your money?");
   
@@ -207,4 +233,5 @@ loadStreets();
 </script>
 </body>
 </html>
+
 
