@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Rēzekne Street Cleanliness Map</title>
+  <title>Rēzeknes ielu tīrības karte</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://www.paypal.com/sdk/js?client-id=Ac88Ac73001nBi9ELLacJvk0N3hanPsPvwqtF-3xyBdIr7qUPWnWyRi98sINCUBXXpwY8eIQMWL2m1ut&currency=EUR"></script>
@@ -66,28 +66,28 @@
 <div id="map"></div>
 
 <div class="control-panel" id="panel" style="display:none;">
-  <strong>Street Status</strong><br>
+  <strong>Ielu Statuss</strong><br>
   <label>
-    <input type="checkbox" id="carsCheck"> Unclean for Cars
+    <input type="checkbox" id="carsCheck"> Netīrs braucējiem
   </label><br>
   
   <div id="pedSection" class="disabled-feature">
     <label>
-      <input type="checkbox" id="pedCheck" disabled> Unclean for Pedestrians
+      <input type="checkbox" id="pedCheck" disabled> Netīrs gājējiem
     </label>
     
     <div id="pay-notice">
       <div class="promo-container">
-        <input type="text" id="promoInput" placeholder="Secret Code?">
+        <input type="text" id="promoInput" placeholder="Slepenais kods?">
         <button onclick="checkPromo()">Go</button>
       </div>
 
-      <p style="margin: 5px 0;">💰 Pay 0.67 EUR to unlock Pedestrian reporting.</p>
+      <p style="margin: 5px 0;">💰 Maksājiet 0.67 EUR gājēju funkcijai.</p>
       <div id="paypal-button-container"></div>
     </div>
   </div>
 
-  <button onclick="applyStatus()" style="margin-top:10px; width: 100%;">Apply</button>
+  <button onclick="applyStatus()" style="margin-top:10px; width: 100%;">Apstiprināt</button>
   <button onclick="relock()" class="admin-reset">Admin: Reset Purchase</button>
 </div>
 
@@ -233,5 +233,6 @@ loadStreets();
 </script>
 </body>
 </html>
+
 
 
