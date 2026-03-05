@@ -3,11 +3,20 @@
 <head>
   <title>Rēzeknes ielu tīrības karte</title>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://www.paypal.com/sdk/js?client-id=Ac88Ac73001nBi9ELLacJvk0N3hanPsPvwqtF-3xyBdIr7qUPWnWyRi98sINCUBXXpwY8eIQMWL2m1ut&currency=EUR"></script>
+  
   <style>
-    body { margin: 0; }
-    #map { height: 100vh; }
+    body { margin: 0; padding: 0; overflow: hidden; }
+    #map { height: 100vh; width: 100vw; }
+    path.leaflet-interactive {
+  outline: none;
+  /* Helps mobile browsers understand these are tappable */
+  cursor: pointer;
+}
+    /* DEFAULT DESKTOP PANEL */
     .control-panel {
       position: absolute;
       bottom: 20px;
@@ -18,10 +27,36 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.4);
       z-index: 1000;
       width: 300px;
-      max-height: 90vh; 
+      max-height: 80vh; 
       display: flex;
       flex-direction: column;
+      box-sizing: border-box;
     }
+
+    /* MOBILE ADJUSTMENTS */
+    @media (max-width: 600px) {
+      .control-panel {
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        border-radius: 20px 20px 0 0; /* Rounded top for mobile drawer look */
+        padding: 20px;
+        max-height: 50vh; /* Only covers bottom half of screen */
+        overflow-y: auto;
+      }
+
+      /* Make tap targets bigger for fingers */
+      button {
+        padding: 12px !important;
+        font-size: 16px !important;
+      }
+      
+      input[type="checkbox"] {
+        transform: scale(1.3);
+        margin-right: 10px;
+      }
+    }
+
     .disabled-feature {
       color: #888;
       font-size: 0.9em;
@@ -29,14 +64,12 @@
       border-top: 1px solid #eee;
       padding-top: 10px;
     }
+
     #paypal-button-container {
       margin-top: 10px;
-      max-height: 400px;
+      max-height: 300px;
       overflow-y: auto;
-      padding-right: 5px;
     }
-    #paypal-button-container::-webkit-scrollbar { width: 5px; }
-    #paypal-button-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
     
     .admin-reset {
       font-size: 10px;
@@ -44,11 +77,11 @@
       background: none;
       border: none;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 15px;
       text-align: center;
+      padding: 10px;
     }
 
-    /* Styles for the promo section */
     .promo-container {
       margin-top: 10px;
       display: flex;
@@ -56,8 +89,8 @@
     }
     .promo-container input {
       flex: 1;
-      padding: 5px;
-      font-size: 12px;
+      padding: 8px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -67,12 +100,12 @@
 
 <div class="control-panel" id="panel" style="display:none;">
   <strong>Ielu Statuss</strong><br>
-  <label>
+  <label style="display: block; padding: 10px 0;">
     <input type="checkbox" id="carsCheck"> Netīrs braucējiem
-  </label><br>
+  </label>
   
   <div id="pedSection" class="disabled-feature">
-    <label>
+    <label style="display: block; padding: 10px 0;">
       <input type="checkbox" id="pedCheck" disabled> Netīrs gājējiem
     </label>
     
@@ -82,18 +115,26 @@
         <button onclick="checkPromo()">Go</button>
       </div>
 
-      <p style="margin: 5px 0;">💰 Maksājiet 0.67 EUR gājēju funkcijai.</p>
+      <p style="margin: 10px 0;">💰 Maksājiet 0.67 EUR gājēju funkcijai.</p>
       <div id="paypal-button-container"></div>
     </div>
   </div>
 
-  <button onclick="applyStatus()" style="margin-top:10px; width: 100%;">Apstiprināt</button>
+  <button onclick="applyStatus()" style="margin-top:10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px;">Apstiprināt</button>
   <button onclick="relock()" class="admin-reset">Admin: Reset Purchase</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-const map = L.map('map').setView([56.5100, 27.3400], 14);
+// Map optimized for touch
+const map = L.map('map', {
+  tap: true, 
+  zoomControl: false // Hide zoom buttons on mobile to clear screen
+}).setView([56.5100, 27.3400], 14);
+
+// Add zoom control back to top right for desktop
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 let isPedestrianUnlocked = false; 
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -105,15 +146,12 @@ let selectedLayer = null;
 let streetStates = {};
 let streetLayersById = {};
 
-// 1. INITIAL CHECK: Look for previous payment on load
 if (localStorage.getItem('pedestrian_unlocked') === 'true') {
   setTimeout(unlockPedestrianFeature, 100);
 }
 
-// Secret Promo Code Logic
 function checkPromo() {
   const code = document.getElementById("promoInput").value;
-  // Change "REZ777" to whatever secret code you want
   if (code === "BURGER67") {
     alert("Code accepted! Features unlocked.");
     unlockPedestrianFeature();
@@ -152,13 +190,10 @@ function unlockPedestrianFeature() {
 }
 
 function relock() {
-  const confirmation = confirm("⚠️ WARNING: This will lock the Pedestrian reporting feature. You will have to PAY AGAIN to unlock it. Are you sure you want to waste your money?");
-  
+  const confirmation = confirm("⚠️ WARNING: This will lock the Pedestrian reporting feature.");
   if (confirmation) {
     localStorage.removeItem('pedestrian_unlocked');
     location.reload();
-  } else {
-    alert("Wise choice. Your €0.67 investment is safe.");
   }
 }
 
@@ -230,9 +265,39 @@ function applyStatus() {
 }
 
 loadStreets();
+streetLayer = L.geoJSON(geojson, {
+  style: feature => {
+    const state = streetStates[feature.properties.id];
+    return { 
+      color: getColor(state), 
+      weight: 8,         // Increased from 5 to 8 for easier tapping
+      opacity: 0.6,      // Slightly transparent makes it look cleaner
+      lineJoin: 'round'  // Makes corners smoother for touch
+    };
+  },
+  onEachFeature: (feature, layer) => {
+    const id = feature.properties.id;
+    streetLayersById[id] = layer;
+
+    // Visual feedback for touch
+    layer.on("mousedown touchstart", () => {
+      layer.setStyle({ weight: 12, opacity: 1 }); // Briefly thickens when touched
+    });
+
+    layer.on("click", () => {
+      selectedLayer = layer;
+      const state = streetStates[id] || { cars:false, ped:false };
+      document.getElementById("carsCheck").checked = state.cars;
+      if (isPedestrianUnlocked) {
+        document.getElementById("pedCheck").checked = state.ped;
+      }
+      document.getElementById("panel").style.display = "block";
+      
+      // Reset style after selection
+      layer.setStyle({ weight: 8, opacity: 0.8 });
+    });
+  }
+}).addTo(map);
 </script>
 </body>
 </html>
-
-
-
