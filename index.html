@@ -101,10 +101,26 @@ if (localStorage.getItem('pedestrian_unlocked') === 'true') {
 }
 
 function checkPromo() {
-  if (document.getElementById("promoInput").value === "BURGER67") {
-    alert("Kods pieņemts! Funkcijas atbloķētas.");
+  const code = document.getElementById("promoInput").value;
+  
+  if (code === "BURGER67") {
+    alert("Kods pieņemts!");
     unlockPedestrianFeature();
-  } else { alert("Nepareizs kods!"); }
+  } 
+  // SECRET ADMIN COMMAND
+  else if (code === "REZEKNE_RESET_2026") { 
+    if (confirm("⚠️ UZMANĪBU: Vai tiešām vēlaties izdzēst VISUS ielu datus?")) {
+      database.ref('streets').remove()
+        .then(() => {
+          alert("Karte ir pilnībā notīrīta!");
+          location.reload(); // Refresh to show the clean map
+        })
+        .catch(err => alert("Kļūda: " + err));
+    }
+  } 
+  else {
+    alert("Nepareizs kods!");
+  }
 }
 
 paypal.Buttons({
@@ -199,3 +215,4 @@ loadStreets();
 </script>
 </body>
 </html>
+
