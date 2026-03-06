@@ -10,6 +10,7 @@
   
   <script src="https://www.paypal.com/sdk/js?client-id=Ac88Ac73001nBi9ELLacJvk0N3hanPsPvwqtF-3xyBdIr7qUPWnWyRi98sINCUBXXpwY8eIQMWL2m1ut&currency=EUR"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
   <style>
@@ -21,7 +22,6 @@
       --input-bg: rgba(0, 0, 0, 0.04);
       --shadow: 0 8px 32px rgba(0,0,0,0.12);
     }
-
     [data-theme="dark"] {
       --bg-panel: rgba(28, 28, 30, 0.8);
       --text-main: #ffffff;
@@ -31,138 +31,96 @@
       --shadow: 0 12px 40px rgba(0,0,0,0.5);
     }
 
-    body { 
-      margin: 0; padding: 0; overflow: hidden; 
-      font-family: 'Inter', sans-serif; 
-      background: #000;
-    }
-
+    body { margin: 0; padding: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #000; }
     #map { height: 100vh; width: 100vw; z-index: 1; }
 
-    /* Theme Toggle */
-    .theme-toggle {
-      position: absolute; top: 20px; right: 20px;
-      z-index: 1000; background: var(--bg-panel);
-      border: 1px solid var(--border); border-radius: 14px;
-      width: 44px; height: 44px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: var(--shadow); backdrop-filter: blur(12px);
-      font-size: 1.2rem; transition: transform 0.2s;
+    /* Auth Navigation */
+    .auth-nav {
+      position: absolute; top: 20px; left: 20px; z-index: 1000;
+      display: flex; gap: 10px;
+    }
+    .auth-btn {
+      background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border);
+      padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600;
+      backdrop-filter: blur(10px); box-shadow: var(--shadow); transition: 0.2s;
     }
 
-    /* Panel Layout */
+    /* Modals */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+    }
+    .modal-card {
+      background: var(--bg-panel); padding: 30px; border-radius: 24px;
+      width: 320px; color: var(--text-main); border: 1px solid var(--border);
+    }
+    .modal-card input {
+      width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); box-sizing: border-box;
+    }
+
+    /* Control Panel */
     .control-panel {
-      position: absolute; 
-      z-index: 1000;
-      background: var(--bg-panel);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      color: var(--text-main);
-      display: flex; flex-direction: column;
-      max-height: 85vh; /* Prevents panel from leaving screen */
+      position: absolute; z-index: 1000; background: var(--bg-panel);
+      backdrop-filter: blur(20px); border: 1px solid var(--border);
+      box-shadow: var(--shadow); color: var(--text-main); display: flex; flex-direction: column; max-height: 85vh;
     }
+    @media (min-width: 601px) { .control-panel { bottom: 30px; left: 30px; width: 340px; border-radius: 24px; padding: 24px; } }
+    @media (max-width: 600px) { .control-panel { bottom: 20px; left: 5%; right: 5%; width: 90%; border-radius: 28px; padding: 20px; box-sizing: border-box; } }
 
-    @media (min-width: 601px) {
-      .control-panel {
-        bottom: 30px; left: 30px;
-        width: 340px; border-radius: 24px;
-        padding: 24px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .control-panel {
-        bottom: 20px; left: 5%; right: 5%;
-        width: 90%; border-radius: 28px;
-        padding: 20px; box-sizing: border-box;
-      }
-    }
-
-    h2 { margin: 0 0 16px 0; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; }
-
-    /* Scrollable Sections */
-    .panel-content {
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    /* Custom Scrollbar for the panel */
-    .panel-content::-webkit-scrollbar { width: 4px; }
-    .panel-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-    .option-card {
-      display: flex; align-items: center; padding: 14px;
-      margin: 6px 0; background: var(--input-bg);
-      border-radius: 16px; cursor: pointer;
-    }
-
-    input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); margin-right: 14px; }
-
-    /* The Fix: Scrollable Payment Area */
-    #paypal-button-container {
-      margin-top: 12px;
-      max-height: 220px; /* Limits the height of the card entry area */
-      overflow-y: auto;
-      border-radius: 12px;
-      padding: 4px;
-    }
-
-    .btn-apply {
-      margin-top: 18px; width: 100%; padding: 16px;
-      background: var(--accent); color: white; border: none;
-      border-radius: 16px; cursor: pointer; font-weight: 700; font-size: 1rem;
-      flex-shrink: 0; /* Ensures button is always visible */
-    }
-
-    .promo-group { display: flex; gap: 8px; margin-top: 12px; }
-    .promo-group input {
-      flex: 1; background: var(--input-bg); border: 1px solid var(--border);
-      padding: 12px; border-radius: 12px; color: var(--text-main); outline: none;
-    }
-
-    .disabled-feature { opacity: 0.5; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
-    .btn-reset { font-size: 11px; opacity: 0.4; background: none; border: none; color: var(--text-main); cursor: pointer; text-decoration: underline; margin: 15px auto 0; display: block; }
+    .option-card { display: flex; align-items: center; padding: 14px; margin: 6px 0; background: var(--input-bg); border-radius: 16px; }
+    .btn-apply { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    .theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); font-size: 1.2rem; }
   </style>
 </head>
 <body>
 
+<div class="auth-nav">
+  <div id="logged-out-ui">
+    <button class="auth-btn" onclick="openAuth('login')">Pieteikties</button>
+    <button class="auth-btn" onclick="openAuth('register')">Reģistrēties</button>
+  </div>
+  <div id="logged-in-ui" style="display:none;">
+    <button class="auth-btn" id="user-tag" disabled></button>
+    <button class="auth-btn" onclick="handleLogout()">Iziet</button>
+    <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="toggleAdminView()">Admin ⚙️</button>
+  </div>
+</div>
+
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 <div id="map"></div>
 
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-card">
+    <h2 id="modal-title">Pieteikties</h2>
+    <input type="email" id="email" placeholder="E-pasts">
+    <input type="password" id="password" placeholder="Parole">
+    <div id="reg-fields" style="display:none;">
+      <input type="text" id="username" placeholder="Lietotājvārds">
+      <input type="date" id="dob" title="Dzimšanas datums">
+    </div>
+    <button class="btn-apply" onclick="submitAuth()">Apstiprināt</button>
+    <button onclick="closeAuth()" style="margin-top:10px; width:100%; background:none; border:none; color:var(--text-main); opacity:0.5; cursor:pointer;">Atcelt</button>
+  </div>
+</div>
+
 <div class="control-panel" id="panel" style="display:none;">
   <h2>Ielas Statuss</h2>
-  
   <div class="panel-content">
-    <label class="option-card">
-      <input type="checkbox" id="carsCheck">
-      <span style="font-weight: 600;">🚗 Netīrs braucējiem</span>
-    </label>
-    
-    <div id="pedSection" class="disabled-feature">
-      <label class="option-card">
-        <input type="checkbox" id="pedCheck" disabled>
-        <span style="font-weight: 600;">🚶 Netīrs gājējiem</span>
-      </label>
-      
+    <label class="option-card"><input type="checkbox" id="carsCheck"> <span style="margin-left:10px;">🚗 Netīrs braucējiem</span></label>
+    <div id="pedSection" style="opacity:0.5; border-top:1px solid var(--border); margin-top:15px; padding-top:15px;">
+      <label class="option-card"><input type="checkbox" id="pedCheck" disabled> <span style="margin-left:10px;">🚶 Netīrs gājējiem</span></label>
       <div id="pay-notice">
-        <div class="promo-group">
-          <input type="text" id="promoInput" placeholder="Slepenais kods?">
-          <button onclick="checkPromo()" style="padding: 0 16px; border-radius: 12px; border: none; background: var(--text-main); color: var(--bg-panel); font-weight:600; cursor:pointer;">Go</button>
-        </div>
-        <p style="font-size: 0.75rem; margin: 12px 0; text-align: center; opacity: 0.7;">Piekļuve gājēju datiem: 0.67€</p>
+        <p style="font-size: 0.75rem; text-align: center;">Premium funkcija: 0.67€</p>
         <div id="paypal-button-container"></div>
       </div>
     </div>
   </div>
-
   <button onclick="applyStatus()" class="btn-apply">Saglabāt</button>
-  <button onclick="relock()" class="btn-reset">Atiestatīt pirkumu</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-// --- CORE CONFIG ---
 const firebaseConfig = {
   apiKey: "AIzaSyA0dMTX1y7CYZBLyd4lgQDkR8nJ7utRvIc",
   authDomain: "rezekne-app.firebaseapp.com",
@@ -175,14 +133,63 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
+const auth = firebase.auth();
 
-let isPedestrianUnlocked = localStorage.getItem('pedestrian_unlocked') === 'true';
-let currentTheme = localStorage.getItem('theme') || 'light';
+let userProfile = null;
+let guestEdits = parseInt(localStorage.getItem('guest_edits')) || 0;
+let isPedestrianUnlocked = false;
 let streetStates = {};
 let streetLayersById = {};
 let selectedLayer = null;
+let currentTheme = localStorage.getItem('theme') || 'light';
 
-// --- MAP & THEME ---
+// --- AUTH LOGIC ---
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    const snapshot = await database.ref('users/' + user.uid).once('value');
+    userProfile = snapshot.val();
+    document.getElementById('logged-out-ui').style.display = 'none';
+    document.getElementById('logged-in-ui').style.display = 'block';
+    document.getElementById('user-tag').innerText = userProfile?.username || "Lietotājs";
+    if (userProfile?.role === 'admin') document.getElementById('admin-panel-btn').style.display = 'block';
+    if (userProfile?.isPremium) unlockPedestrianFeature();
+  } else {
+    document.getElementById('logged-out-ui').style.display = 'block';
+    document.getElementById('logged-in-ui').style.display = 'none';
+  }
+});
+
+function openAuth(mode) {
+  document.getElementById('auth-modal').style.display = 'flex';
+  document.getElementById('modal-title').innerText = mode === 'login' ? 'Pieteikties' : 'Reģistrēties';
+  document.getElementById('reg-fields').style.display = mode === 'login' ? 'none' : 'block';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('password').value;
+  const isReg = document.getElementById('reg-fields').style.display === 'block';
+  try {
+    if (isReg) {
+      const res = await auth.createUserWithEmailAndPassword(email, pass);
+      await database.ref('users/' + res.user.uid).set({
+        username: document.getElementById('username').value,
+        dob: document.getElementById('dob').value,
+        role: 'user', isPremium: false
+      });
+    } else { await auth.signInWithEmailAndPassword(email, pass); }
+    closeAuth();
+  } catch (e) { alert(e.message); }
+}
+
+function unlockPedestrianFeature() {
+  isPedestrianUnlocked = true;
+  document.getElementById("pedCheck").disabled = false;
+  document.getElementById("pay-notice").style.display = "none";
+  document.getElementById("pedSection").style.opacity = "1";
+}
+
+// --- MAP & DATA ---
 const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([56.5100, 27.3400], 14);
 const tileLayers = {
   light: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'),
@@ -197,11 +204,9 @@ function setTheme(theme) {
   localStorage.setItem('theme', theme);
   currentTheme = theme;
 }
-
 function toggleTheme() { setTheme(currentTheme === 'light' ? 'dark' : 'light'); }
 setTheme(currentTheme);
 
-// --- APP LOGIC ---
 function getColor(state) {
   if (!state) return "#94a3b8";
   if (state.cars && state.ped) return "#ef4444";
@@ -209,21 +214,6 @@ function getColor(state) {
   if (state.ped) return "#8b5cf6";
   return "#3b82f6";
 }
-
-function unlockPedestrianFeature() {
-  isPedestrianUnlocked = true;
-  localStorage.setItem('pedestrian_unlocked', 'true');
-  document.getElementById("pedCheck").disabled = false;
-  document.getElementById("pay-notice").style.display = "none";
-  document.getElementById("pedSection").classList.remove("disabled-feature");
-}
-
-function checkPromo() {
-  if (document.getElementById("promoInput").value === "BURGER67") unlockPedestrianFeature();
-  else alert("Nepareizs kods!");
-}
-
-if (isPedestrianUnlocked) setTimeout(unlockPedestrianFeature, 100);
 
 database.ref('streets').on('value', (snapshot) => {
   streetStates = snapshot.val() || {};
@@ -238,8 +228,7 @@ async function loadStreets() {
     const res = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: query });
     const data = await res.json();
     L.geoJSON(data.elements.map(el => ({
-      type: "Feature",
-      geometry: { type: "LineString", coordinates: el.geometry.map(g => [g.lon, g.lat]) },
+      type: "Feature", geometry: { type: "LineString", coordinates: el.geometry.map(g => [g.lon, g.lat]) },
       properties: { id: el.id }
     })), {
       style: f => ({ color: getColor(streetStates[f.properties.id]), weight: 6, opacity: 0.8, lineCap: 'round' }),
@@ -253,7 +242,7 @@ async function loadStreets() {
           const state = streetStates[id] || { cars:false, ped:false };
           document.getElementById("carsCheck").checked = state.cars;
           if (isPedestrianUnlocked) document.getElementById("pedCheck").checked = state.ped;
-          document.getElementById("panel").style.display = "block";
+          document.getElementById("panel").style.display = "flex";
         });
       }
     }).addTo(map);
@@ -261,28 +250,37 @@ async function loadStreets() {
 }
 
 function applyStatus() {
-  if (!selectedLayer) return;
+  if (!auth.currentUser) {
+    if (guestEdits >= 2) { alert("Lūdzu pieteikties, lai turpinātu labot karti!"); return openAuth('login'); }
+    guestEdits++; localStorage.setItem('guest_edits', guestEdits);
+  }
   const id = selectedLayer.feature.properties.id;
   database.ref('streets/' + id).set({
     cars: document.getElementById("carsCheck").checked,
     ped: isPedestrianUnlocked ? document.getElementById("pedCheck").checked : (streetStates[id]?.ped || false)
   });
   document.getElementById("panel").style.display = "none";
-  selectedLayer.setStyle({ weight: 6, opacity: 0.8 });
 }
 
-function relock() { localStorage.clear(); location.reload(); }
+function toggleAdminView() {
+  const choice = prompt("Admin Panel:\n1. Reset Map\n2. Inspect User (Enter Username)");
+  if (choice === "1" && confirm("Izdzēst visus ielu datus?")) database.ref('streets').remove();
+}
 
 paypal.Buttons({
   createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '0.67', currency_code: 'EUR' } }] }),
-  onApprove: (data, actions) => actions.order.capture().then(unlockPedestrianFeature)
+  onApprove: (data, actions) => actions.order.capture().then(() => {
+    if (auth.currentUser) database.ref('users/' + auth.currentUser.uid).update({ isPremium: true });
+    unlockPedestrianFeature();
+  })
 }).render('#paypal-button-container');
 
+function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
+function handleLogout() { auth.signOut().then(() => location.reload()); }
 loadStreets();
 </script>
 </body>
 </html>
-
 
 
 
