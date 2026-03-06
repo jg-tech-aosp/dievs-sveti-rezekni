@@ -37,18 +37,23 @@
     /* UI Components */
     .auth-nav { position: absolute; top: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; }
     .auth-btn { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; backdrop-filter: blur(10px); box-shadow: var(--shadow); transition: 0.2s; }
+    
+    /* Make user tag look clickable when logged in */
+    #user-tag:not([disabled]) { border-color: var(--accent); cursor: pointer; }
+    #user-tag:not([disabled]):hover { background: var(--input-bg); }
+
     .theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); font-size: 1.2rem; }
 
-    /* Modals & Dashboard */
+    /* Modals */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-    .modal-card { background: var(--bg-panel); padding: 30px; border-radius: 24px; color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .modal-card { background: var(--bg-panel); padding: 30px; border-radius: 24px; color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow); width: 320px; }
     .modal-card input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; }
+    .label-hint { font-size: 0.75rem; opacity: 0.6; margin-top: 10px; display: block; }
 
-    /* Admin Dashboard Specifics */
+    /* Admin Dashboard */
     .admin-card { width: 90%; max-width: 600px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
     .user-list { overflow-y: auto; flex: 1; margin-top: 15px; }
     .user-row { background: var(--input-bg); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid var(--border); }
-    .user-controls { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .btn-small { padding: 6px 12px; border-radius: 8px; border: none; font-size: 0.75rem; cursor: pointer; font-weight: 700; transition: 0.2s; }
 
     /* Control Panel */
@@ -58,6 +63,7 @@
 
     .option-card { display: flex; align-items: center; padding: 14px; margin: 6px 0; background: var(--input-bg); border-radius: 16px; }
     .btn-apply { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    .btn-danger { background: none; border: none; color: #FF3B30; cursor: pointer; font-size: 0.8rem; text-decoration: underline; width: 100%; margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -68,7 +74,7 @@
     <button class="auth-btn" onclick="openAuth('register')">Reģistrēties</button>
   </div>
   <div id="logged-in-ui" style="display:none;">
-    <button class="auth-btn" id="user-tag" disabled></button>
+    <button class="auth-btn" id="user-tag" onclick="openSettings()">Ielādē...</button>
     <button class="auth-btn" onclick="handleLogout()">Iziet</button>
     <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard()">Admin ⚙️</button>
   </div>
@@ -78,7 +84,7 @@
 <div id="map"></div>
 
 <div class="modal-overlay" id="auth-modal">
-  <div class="modal-card" style="width:320px;">
+  <div class="modal-card">
     <h2 id="modal-title">Pieteikties</h2>
     <input type="email" id="email" placeholder="E-pasts">
     <input type="password" id="password" placeholder="Parole">
@@ -88,6 +94,28 @@
     </div>
     <button class="btn-apply" onclick="submitAuth()">Apstiprināt</button>
     <button onclick="closeAuth()" style="margin-top:10px; width:100%; background:none; border:none; color:var(--text-main); opacity:0.5; cursor:pointer;">Atcelt</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;">Iestatījumi</h2>
+      <button onclick="closeSettings()" class="btn-small">X</button>
+    </div>
+    
+    <span class="label-hint">Lietotājvārds</span>
+    <input type="text" id="settings-username">
+    
+    <span class="label-hint">Dzimšanas datums</span>
+    <input type="date" id="settings-dob">
+
+    <div id="settings-stats" style="margin:15px 0; padding:12px; background:var(--input-bg); border-radius:12px; font-size:0.9rem;">
+      Statuss: <span id="settings-premium-badge">Parasts</span>
+    </div>
+
+    <button class="btn-apply" onclick="updateUserSettings()">Saglabāt izmaiņas</button>
+    <button class="btn-danger" onclick="deleteOwnAccount()">Dzēst manu kontu</button>
   </div>
 </div>
 
@@ -145,14 +173,18 @@ let streetLayersById = {};
 let selectedLayer = null;
 let currentTheme = localStorage.getItem('theme') || 'light';
 
-// --- 1. AUTH & PROFILE ---
+// --- AUTH STATE ---
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     const snapshot = await database.ref('users/' + user.uid).once('value');
     userProfile = snapshot.val();
     document.getElementById('logged-out-ui').style.display = 'none';
     document.getElementById('logged-in-ui').style.display = 'block';
-    document.getElementById('user-tag').innerText = userProfile?.username || "Lietotājs";
+    
+    const tag = document.getElementById('user-tag');
+    tag.innerText = userProfile?.username || "Lietotājs";
+    tag.disabled = false;
+
     if (userProfile?.role === 'admin') document.getElementById('admin-panel-btn').style.display = 'block';
     if (userProfile?.isPremium) unlockPedestrianFeature();
   } else {
@@ -161,6 +193,40 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
+// --- SETTINGS LOGIC ---
+function openSettings() {
+  if (!userProfile) return;
+  document.getElementById('settings-modal').style.display = 'flex';
+  document.getElementById('settings-username').value = userProfile.username || "";
+  document.getElementById('settings-dob').value = userProfile.dob || "";
+  document.getElementById('settings-premium-badge').innerText = userProfile.isPremium ? "Premium ✨" : "Bezmaksas";
+}
+
+function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+
+async function updateUserSettings() {
+  try {
+    await database.ref('users/' + auth.currentUser.uid).update({
+      username: document.getElementById('settings-username').value,
+      dob: document.getElementById('settings-dob').value
+    });
+    alert("Saglabāts!");
+    location.reload();
+  } catch (e) { alert(e.message); }
+}
+
+async function deleteOwnAccount() {
+  if (confirm("VAI TIEŠĀM dzēst savu kontu? Šī darbība ir neatgriezeniska.")) {
+    const user = auth.currentUser;
+    try {
+      await database.ref('users/' + user.uid).remove();
+      await user.delete();
+      location.reload();
+    } catch (e) { alert("Lūdzu, izlogojieties un ielogojieties vēlreiz, lai apstiprinātu dzēšanu."); }
+  }
+}
+
+// --- REST OF APP LOGIC ---
 async function submitAuth() {
   const email = document.getElementById('email').value;
   const pass = document.getElementById('password').value;
@@ -178,7 +244,6 @@ async function submitAuth() {
   } catch (e) { alert(e.message); }
 }
 
-// --- 2. ADMIN DASHBOARD LOGIC ---
 async function openAdminDashboard() {
   document.getElementById('admin-dashboard').style.display = 'flex';
   const snapshot = await database.ref('users').once('value');
@@ -190,7 +255,6 @@ function renderUserList() {
   const list = document.getElementById('user-list');
   const search = document.getElementById('adminSearch').value.toLowerCase();
   list.innerHTML = "";
-
   for (let uid in allUsers) {
     const u = allUsers[uid];
     if (u.username?.toLowerCase().includes(search)) {
@@ -198,36 +262,22 @@ function renderUserList() {
       row.className = 'user-row';
       row.innerHTML = `
         <div style="font-weight:700;">${u.username} <span style="font-weight:400; opacity:0.6; font-size:0.8rem;">(${u.dob})</span></div>
-        <div style="font-size:0.7rem; opacity:0.5; margin-bottom:8px;">UID: ${uid}</div>
-        <div class="user-controls">
-          <button class="btn-small" style="background:${u.isPremium ? '#34C759' : '#8E8E93'}; color:white;" onclick="updateUser('${uid}', {isPremium: ${!u.isPremium}})">
+        <div class="user-controls" style="display:flex; gap:8px; margin-top:10px;">
+          <button class="btn-small" style="background:${u.isPremium ? '#34C759' : '#8E8E93'}; color:white;" onclick="updateAdminUser('${uid}', {isPremium: ${!u.isPremium}})">
             ${u.isPremium ? 'Noņemt Premium' : 'Dot Premium'}
           </button>
-          <button class="btn-small" style="background:#FF3B30; color:white;" onclick="deleteUser('${uid}')">Dzēst</button>
-          ${u.role !== 'admin' ? `<button class="btn-small" style="background:var(--accent); color:white;" onclick="updateUser('${uid}', {role: 'admin'})">Padarīt Admin</button>` : '<b>[ADMIN]</b>'}
+          <button class="btn-small" style="background:#FF3B30; color:white;" onclick="deleteAdminUser('${uid}')">Dzēst</button>
         </div>`;
       list.appendChild(row);
     }
   }
 }
 
-async function updateUser(uid, data) {
-  await database.ref('users/' + uid).update(data);
-  openAdminDashboard();
-}
+async function updateAdminUser(uid, data) { await database.ref('users/' + uid).update(data); openAdminDashboard(); }
+async function deleteAdminUser(uid) { if (confirm("Dzēst lietotāju?")) { await database.ref('users/' + uid).remove(); openAdminDashboard(); } }
+function resetMap() { if (confirm("Atiestatīt VISUS ielu datus?")) database.ref('streets').remove(); }
 
-async function deleteUser(uid) {
-  if (confirm("Dzēst šo lietotāju no datubāzes?")) {
-    await database.ref('users/' + uid).remove();
-    openAdminDashboard();
-  }
-}
-
-function resetMap() {
-  if (confirm("VAI TIEŠĀM izdzēst visus ielu datus?")) database.ref('streets').remove();
-}
-
-// --- 3. CORE MAP & APP LOGIC ---
+// Map Init
 const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([56.5100, 27.3400], 14);
 const tileLayers = {
   light: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'),
