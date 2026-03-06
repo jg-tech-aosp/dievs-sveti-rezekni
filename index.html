@@ -220,11 +220,9 @@ function unlockPedestrianFeature() {
 
 function checkPromo() {
   if (document.getElementById("promoInput").value === "BURGER67") unlockPedestrianFeature();
+  else alert("Nepareizs kods!");
 }
-  else {
-    alert("Nepareizs kods!");
-  }
-}
+
 if (isPedestrianUnlocked) setTimeout(unlockPedestrianFeature, 100);
 
 database.ref('streets').on('value', (snapshot) => {
@@ -284,6 +282,7 @@ loadStreets();
 </script>
 </body>
 </html>
+
 
 
 
