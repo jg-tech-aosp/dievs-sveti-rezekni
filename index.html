@@ -961,7 +961,7 @@ async function submitPost() {
     uid: auth.currentUser.uid,
     username: userProfile?.username || auth.currentUser.displayName || 'Lietotājs',
     isPremium: userProfile?.isPremium || false,
-    text: text,
+    text: filterText(text),
     photos: feedPhotos.length > 0 ? feedPhotos : null,
     timestamp: Date.now()
   };
@@ -970,6 +970,69 @@ async function submitPost() {
   document.getElementById('feed-photo-previews').innerHTML = '';
   document.getElementById('feed-photo-input').value = '';
   feedPhotos = [];
+}
+
+// --- CHAT FILTER ---
+const BANNED_WORDS = [
+  // Latvian
+  'mauka', 'pičkas', 'pička', 'pičkā', 'pizda', 'dirst', 'dirsa', 'dirsā', 'sūds', 'sūdā',
+  'muds', 'mudā', 'hujs', 'huja', 'hujā', 'mīzt', 'pakaļa', 'pakalā', 'nobīsties',
+  // Russian (transliterated)
+  'blyad', 'blya', 'pizd', 'huy', 'hui', 'ebat', 'ebal', 'suka', 'pidor', 'zalupa',
+  'mudak', 'muda', 'cyka',
+  // English (word-boundary matched)
+  'fuck', 'fuk', 'fvck', 'f0ck', 'fck',
+  'shit', 'sh1t', 'sht',
+  'ass', 'arse', 'a55',
+  'bitch', 'b1tch', 'btch',
+  'bastard', 'bstrd',
+  'damn', 'crap',
+  'cunt', 'c0nt',
+  'dick', 'd1ck', 'dik',
+  'cock', 'c0ck',
+  'pussy',
+  'whore', 'wh0re', 'hoe',
+  'slut', 'sl0t',
+  'nigga', 'nigger', 'n1gga',
+  'faggot', 'fag', 'f4g',
+  'retard', 'ret4rd',
+  'piss', 'p1ss',
+  'bollocks', 'bollock',
+  'twat', 'tw4t',
+  'wank', 'wanker',
+  'motherfucker', 'mofo',
+  'asshole', 'arsehole', 'a55hole',
+  'dumbass', 'dipshit', 'jackass', 'horseshit', 'bullshit', 'goddamn',
+  'wtf', 'stfu'
+];
+
+// Compound words — matched as substrings (no word boundary needed)
+const BANNED_COMPOUNDS = [
+  'bitchass', 'asshat', 'asswipe', 'assfuck', 'asslick', 'assface', 'asshead',
+  'dickhead', 'dickface', 'dickwad', 'dickweed', 'dicklick',
+  'shithead', 'shitface', 'shitstain', 'shitbag', 'shithole', 'shitshow', 'shitpost',
+  'fuckhead', 'fuckface', 'fuckwit', 'fuckboy', 'fuckgirl', 'fuckwad',
+  'cockhead', 'cockface', 'cocksucker',
+  'cuntface', 'cuntbag',
+  'dumbfuck', 'dumbshit', 'dumbcunt',
+  'scumbag', 'scumfuck',
+  'pissbag', 'pisshead', 'pissface', 'pissbaby'
+];
+
+function filterText(text) {
+  if (!text) return text;
+  let filtered = text;
+  // Pass 1: compounds — substring match
+  BANNED_COMPOUNDS.forEach(word => {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filtered = filtered.replace(new RegExp(escaped, 'gi'), '*'.repeat(word.length));
+  });
+  // Pass 2: single words — word boundary match
+  BANNED_WORDS.forEach(word => {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filtered = filtered.replace(new RegExp(`\\b${escaped}\\b`, 'gi'), '*'.repeat(word.length));
+  });
+  return filtered;
 }
 
 function timeAgo(ts) {
@@ -1045,7 +1108,7 @@ async function submitComment(postId) {
     uid: auth.currentUser.uid,
     username: userProfile?.username || auth.currentUser.displayName || 'Lietotājs',
     isPremium: userProfile?.isPremium || false,
-    text,
+    text: filterText(text),
     timestamp: Date.now()
   });
   input.value = '';
