@@ -35,13 +35,25 @@
     #map { height: 100vh; width: 100vw; z-index: 1; }
 
     /* UI Components */
-    .auth-nav { position: absolute; top: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; }
-    .auth-btn { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; backdrop-filter: blur(10px); box-shadow: var(--shadow); transition: 0.2s; }
+    .auth-nav { position: absolute; top: 20px; left: 20px; z-index: 1000; display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; }
+    .auth-btn { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; backdrop-filter: blur(10px); box-shadow: var(--shadow); transition: 0.2s; white-space: nowrap; }
+    #logged-in-ui { display: flex; gap: 8px; align-items: center; }
+    .nav-icon-group { display: flex; gap: 8px; align-items: center; }
+    .hamburger-wrap { display: none; }
+    .nav-dropdown { display: none; position: absolute; top: 54px; right: 0; left: auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 10px; box-shadow: var(--shadow); backdrop-filter: blur(20px); flex-direction: column; gap: 8px; z-index: 1002; min-width: 180px; }
+    .nav-dropdown.open { display: flex; }
+    .nav-dropdown .auth-btn { width: 100%; text-align: left; box-shadow: none; }
+    @media (max-width: 600px) {
+      .nav-icon-group { display: none; }
+      .hamburger-wrap { display: block; }
+      .auth-nav .search-box { width: auto !important; flex: 1; min-width: 0; max-width: 120px; }
+    }
     
     #user-tag:not([disabled]) { border-color: var(--accent); cursor: pointer; }
     #user-tag:not([disabled]):hover { background: var(--input-bg); }
 
     .theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); font-size: 1.2rem; }
+    @media (max-width: 600px) { .theme-toggle { display: none; } }
 
     /* Search & Location Controls */
     .map-controls { position: absolute; top: 80px; left: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
@@ -388,27 +400,42 @@
 </head>
 <body>
 
-<div class="auth-nav">
-  <div id="logged-out-ui">
+<div class="auth-nav" id="auth-nav">
+  <div id="logged-out-ui" style="display:flex; gap:8px;">
     <button class="auth-btn" onclick="openAuth('login')">Pieteikties</button>
     <button class="auth-btn" onclick="openAuth('register')">Reģistrēties</button>
   </div>
-  <div id="logged-in-ui" style="display:none;">
+  <div id="logged-in-ui" style="display:none; gap:8px; align-items:center;">
     <button class="auth-btn" id="user-tag" onclick="openSettings()">Ielādē...</button>
     <button class="auth-btn" onclick="handleLogout()">Iziet</button>
-    <button class="auth-btn" id="dm-inbox-btn" onclick="openInbox()" style="position:relative;">📬 <span id="dm-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;">!</span></button>
-    <button class="auth-btn" onclick="openNotifications()" style="position:relative;">🔔 <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;"></span></button>
-    <button class="auth-btn" onclick="openUserSearch()">🔍</button>
-    <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard()">Admin ⚙️</button>
+    <!-- Icon buttons - hidden on mobile -->
+    <div class="nav-icon-group">
+      <button class="auth-btn" id="dm-inbox-btn" onclick="openInbox()" style="position:relative;">📬 <span id="dm-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;">!</span></button>
+      <button class="auth-btn" onclick="openNotifications()" style="position:relative;">🔔 <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;"></span></button>
+      <button class="auth-btn" onclick="openUserSearch()">🔍</button>
+      <button class="auth-btn" onclick="findMyLocation()">📍</button>
+      <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard()">Admin ⚙️</button>
+    </div>
+    <!-- Hamburger - only on mobile -->
+    <div style="position:relative;" class="hamburger-wrap">
+      <button class="auth-btn" onclick="toggleNavDropdown()">☰</button>
+      <div class="nav-dropdown" id="nav-dropdown">
+        <button class="auth-btn" onclick="openInbox(); toggleNavDropdown()">📬 Iesūtne <span id="dm-unread-badge-m" style="display:none;margin-left:4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;display:inline-block;vertical-align:middle;"></span></button>
+        <button class="auth-btn" onclick="openNotifications(); toggleNavDropdown()">🔔 Paziņojumi <span id="notif-badge-m" style="display:none;margin-left:4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;display:inline-block;vertical-align:middle;"></span></button>
+        <button class="auth-btn" onclick="openUserSearch(); toggleNavDropdown()">🔍 Meklēt</button>
+        <button class="auth-btn" onclick="findMyLocation(); toggleNavDropdown()">📍 Atrast mani</button>
+        <button class="auth-btn" id="admin-panel-btn-m" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard(); toggleNavDropdown()">Admin ⚙️</button>
+        <button class="auth-btn" onclick="toggleTheme(); toggleNavDropdown()" id="themeBtn-m">🌙 Tumšais režīms</button>
+      </div>
+    </div>
+  </div>
+  <div class="search-box" style="width:200px;">
+    <input type="text" id="streetSearch" placeholder="Meklēt ielu..." oninput="handleSearch()">
+    <div id="search-results" class="search-results"></div>
   </div>
 </div>
 
 <div class="map-controls">
-  <div class="search-box">
-    <input type="text" id="streetSearch" placeholder="Meklēt ielu Rēzeknē..." oninput="handleSearch()">
-    <div id="search-results" class="search-results"></div>
-  </div>
-  <button class="control-btn" onclick="findMyLocation()" title="Mana atrašanās vieta">📍</button>
   <button class="control-btn" id="reload-streets-btn" onclick="retryLoadStreets()" title="Pārlādēt ielas">🔃</button>
 </div>
 
@@ -677,20 +704,24 @@ auth.onAuthStateChanged(async (user) => {
     const snapshot = await database.ref('users/' + user.uid).once('value');
     userProfile = snapshot.val();
     document.getElementById('logged-out-ui').style.display = 'none';
-    document.getElementById('logged-in-ui').style.display = 'block';
+    document.getElementById('logged-in-ui').style.display = 'flex';
     const tag = document.getElementById('user-tag');
     tag.innerText = userProfile?.username || user.displayName || "Lietotājs";
     tag.disabled = false;
-    if (userProfile?.role === 'admin') document.getElementById('admin-panel-btn').style.display = 'block';
+    if (userProfile?.role === 'admin') {
+      document.getElementById('admin-panel-btn').style.display = 'block';
+      document.getElementById('admin-panel-btn-m').style.display = 'block';
+    }
     if (userProfile?.isPremium) unlockPedestrianFeature();
     if (typeof updateComposeVisibility === 'function') updateComposeVisibility();
     // Watch for unread DMs
     database.ref(`user_convs/${user.uid}`).on('value', snap => {
       const val = snap.val();
       const badge = document.getElementById('dm-unread-badge');
-      if (!badge) return;
+      const badgeM = document.getElementById('dm-unread-badge-m');
       const hasUnread = val && Object.values(val).some(c => c.unread === true);
-      badge.style.display = hasUnread ? 'block' : 'none';
+      if (badge) badge.style.display = hasUnread ? 'block' : 'none';
+      if (badgeM) badgeM.style.display = hasUnread ? 'inline-block' : 'none';
     });
     // Watch for unread notifications
     watchNotifBadge(user.uid);
@@ -823,6 +854,8 @@ function setTheme(theme) {
   Object.values(tileLayers).forEach(l => map.removeLayer(l));
   tileLayers[theme].addTo(map);
   document.getElementById('themeBtn').innerHTML = theme === 'light' ? '🌙' : '☀️';
+  const mBtn = document.getElementById('themeBtn-m');
+  if (mBtn) mBtn.innerText = theme === 'dark' ? '☀️ Gaišais režīms' : '🌙 Tumšais režīms';
   localStorage.setItem('theme', theme);
   currentTheme = theme;
 }
@@ -1008,6 +1041,17 @@ async function submitAuth() {
 function closeAuth() { document.getElementById('auth-modal').style.display='none'; }
 function closeAdminDashboard() { document.getElementById('admin-dashboard').style.display='none'; }
 function toggleTheme() { setTheme(currentTheme === 'light' ? 'dark' : 'light'); }
+
+function toggleNavDropdown() {
+  document.getElementById('nav-dropdown').classList.toggle('open');
+}
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  const dropdown = document.getElementById('nav-dropdown');
+  if (dropdown && !dropdown.closest('.auth-nav')?.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
 function handleLogout() { auth.signOut().then(() => location.reload()); }
 
 // --- BLOG FEED ---
@@ -1527,12 +1571,17 @@ function openNotifications() {
     entries.forEach(([nid, n]) => {
       const item = document.createElement('div');
       item.className = `notif-item${n.read ? '' : ' unread'}`;
+      item.style.cssText = 'display:flex; align-items:flex-start; gap:8px;';
       item.innerHTML = `
-        <div class="notif-item-text">${n.icon} ${n.text}</div>
-        <div class="notif-item-time">${timeAgo(n.timestamp)}</div>
+        <div style="flex:1; cursor:pointer;">
+          <div class="notif-item-text">${n.icon} ${n.text}</div>
+          <div class="notif-item-time">${timeAgo(n.timestamp)}</div>
+        </div>
+        <button onclick="deleteNotif('${nid}', event)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:0 2px;opacity:0.4;flex-shrink:0;" title="Dzēst">✕</button>
       `;
-      if (n.uid) item.onclick = () => { markNotifRead(nid); closeNotifications(); openProfile(n.uid, n.username); };
-      else item.onclick = () => markNotifRead(nid);
+      const textArea = item.querySelector('div[style]');
+      if (n.uid) textArea.onclick = () => { markNotifRead(nid); closeNotifications(); openProfile(n.uid, n.username); };
+      else textArea.onclick = () => markNotifRead(nid);
       list.appendChild(item);
     });
   });
@@ -1546,6 +1595,12 @@ function closeNotifications() {
 function markNotifRead(nid) {
   if (!auth.currentUser) return;
   database.ref(`notifications/${auth.currentUser.uid}/${nid}/read`).set(true);
+}
+
+function deleteNotif(nid, e) {
+  e.stopPropagation();
+  if (!auth.currentUser) return;
+  database.ref(`notifications/${auth.currentUser.uid}/${nid}`).remove();
 }
 
 function markAllNotifsRead() {
@@ -1563,10 +1618,12 @@ function watchNotifBadge(uid) {
   database.ref(`notifications/${uid}`).on('value', snap => {
     const val = snap.val();
     const badge = document.getElementById('notif-badge');
-    if (!badge) return;
+    const badgeM = document.getElementById('notif-badge-m');
     const unread = val ? Object.values(val).filter(n => !n.read).length : 0;
-    badge.style.display = unread > 0 ? 'block' : 'none';
-    badge.innerText = unread > 9 ? '9+' : unread;
+    const display = unread > 0 ? 'block' : 'none';
+    const text = unread > 9 ? '9+' : unread;
+    if (badge) { badge.style.display = display; badge.innerText = text; }
+    if (badgeM) { badgeM.style.display = unread > 0 ? 'inline-block' : 'none'; badgeM.innerText = text; }
   });
 }
 
