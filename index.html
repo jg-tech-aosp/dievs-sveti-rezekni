@@ -688,6 +688,7 @@ async function signInWithGoogle() {
         role: 'user',
         isPremium: false
       });
+      await database.ref('user_index/' + user.uid).set({ username: user.displayName, isPremium: false, bio: '' });
     }
     closeAuth();
   } catch (error) {
@@ -707,11 +708,12 @@ function openSettings() {
 function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
 async function updateUserSettings() {
   try {
+    const username = document.getElementById('settings-username').value;
+    const bio = document.getElementById('settings-bio').value;
     await database.ref('users/' + auth.currentUser.uid).update({
-      username: document.getElementById('settings-username').value,
-      dob: document.getElementById('settings-dob').value,
-      bio: document.getElementById('settings-bio').value
+      username, dob: document.getElementById('settings-dob').value, bio
     });
+    await database.ref('user_index/' + auth.currentUser.uid).update({ username, bio });
     alert("Saglabāts!"); location.reload();
   } catch (e) { alert(e.message); }
 }
@@ -956,7 +958,10 @@ function unlockPedestrianFeature() {
 paypal.Buttons({
   createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '0.67', currency_code: 'EUR' } }] }),
   onApprove: (data, actions) => actions.order.capture().then(() => {
-    if (auth.currentUser) database.ref('users/' + auth.currentUser.uid).update({ isPremium: true });
+    if (auth.currentUser) {
+      database.ref('users/' + auth.currentUser.uid).update({ isPremium: true });
+      database.ref('user_index/' + auth.currentUser.uid).update({ isPremium: true });
+    }
     unlockPedestrianFeature();
   })
 }).render('#paypal-button-container');
@@ -968,7 +973,9 @@ async function submitAuth() {
   try {
     if (isReg) {
       const res = await auth.createUserWithEmailAndPassword(email, pass);
-      await database.ref('users/' + res.user.uid).set({ username: document.getElementById('username').value, dob: document.getElementById('dob').value, role: 'user', isPremium: false });
+      const username = document.getElementById('username').value;
+      await database.ref('users/' + res.user.uid).set({ username, dob: document.getElementById('dob').value, role: 'user', isPremium: false });
+      await database.ref('user_index/' + res.user.uid).set({ username, isPremium: false, bio: '' });
     } else { await auth.signInWithEmailAndPassword(email, pass); }
     closeAuth();
   } catch (e) { alert(e.message); }
@@ -1401,7 +1408,7 @@ async function handleUserSearch() {
     return;
   }
   results.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Meklē...</div>';
-  const snap = await database.ref('users').once('value');
+  const snap = await database.ref('user_index').once('value');
   const val = snap.val();
   if (!val) { results.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav rezultātu.</div>'; return; }
   const matches = Object.entries(val)
