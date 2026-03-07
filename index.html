@@ -364,6 +364,20 @@
       border-radius: 12px;
       object-fit: contain;
     }
+    /* DM Styles */
+    .dm-bubble { max-width: 75%; padding: 9px 13px; border-radius: 16px; font-size: 0.85rem; line-height: 1.4; word-break: break-word; }
+    .dm-bubble.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .dm-bubble.received { background: var(--input-bg); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .dm-bubble-wrap { display: flex; flex-direction: column; }
+    .dm-bubble-wrap.sent { align-items: flex-end; }
+    .dm-bubble-wrap.received { align-items: flex-start; }
+    .dm-bubble-meta { font-size: 0.7rem; opacity: 0.4; margin-top: 3px; }
+    .inbox-item { padding: 12px; border-radius: 14px; cursor: pointer; transition: 0.15s; border: 1px solid var(--border); margin-bottom: 8px; }
+    .inbox-item:hover { background: var(--input-bg); }
+    .inbox-item-name { font-weight: 700; font-size: 0.9rem; }
+    .inbox-item-preview { font-size: 0.8rem; opacity: 0.5; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inbox-item.unread { border-color: var(--accent); }
+    .inbox-item.unread .inbox-item-name::after { content: ' 🔵'; font-size: 0.6rem; }
   </style>
 </head>
 <body>
@@ -376,6 +390,7 @@
   <div id="logged-in-ui" style="display:none;">
     <button class="auth-btn" id="user-tag" onclick="openSettings()">Ielādē...</button>
     <button class="auth-btn" onclick="handleLogout()">Iziet</button>
+    <button class="auth-btn" id="dm-inbox-btn" onclick="openInbox()" style="position:relative;">📬 <span id="dm-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;">!</span></button>
     <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard()">Admin ⚙️</button>
   </div>
 </div>
@@ -441,8 +456,42 @@
     </div>
     <div id="profile-badge" style="margin:8px 0; font-size:0.85rem;"></div>
     <div id="profile-bio" style="font-size:0.85rem; opacity:0.7; margin-bottom:12px; padding:10px; background:var(--input-bg); border-radius:12px; flex-shrink:0;"></div>
+    <div id="profile-dm-btn-wrap" style="display:none; margin-bottom:12px; flex-shrink:0;">
+      <button id="profile-dm-btn" class="btn-apply" style="margin:0; padding:10px;" onclick="startDM()">💬 Sūtīt ziņu</button>
+    </div>
     <div style="font-weight:700; font-size:0.8rem; opacity:0.5; margin-bottom:8px; flex-shrink:0;">ZIŅAS</div>
     <div id="profile-posts" style="overflow-y:auto; flex:1; scrollbar-width:thin;"></div>
+  </div>
+</div>
+
+<!-- Inbox Modal -->
+<div class="modal-overlay" id="inbox-modal" style="display:none;">
+  <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+      <h2 style="margin:0;">📬 Iesūtne</h2>
+      <button onclick="closeInbox()" class="btn-small">X</button>
+    </div>
+    <div id="inbox-list" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin;">
+      <div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav sarunu.</div>
+    </div>
+  </div>
+</div>
+
+<!-- DM Chat Modal -->
+<div class="modal-overlay" id="dm-modal" style="display:none;">
+  <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:380px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+      <h2 style="margin:0;" id="dm-chat-title">Saruna</h2>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeDMGoBack()" class="btn-small">←</button>
+        <button onclick="closeDM()" class="btn-small">X</button>
+      </div>
+    </div>
+    <div id="dm-messages" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin; display:flex; flex-direction:column; gap:8px;"></div>
+    <div style="display:flex; gap:8px; margin-top:12px; flex-shrink:0;">
+      <input type="text" id="dm-input" placeholder="Raksti ziņu..." style="flex:1; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-main); font-family:'Inter',sans-serif;" onkeydown="if(event.key==='Enter') sendDM()">
+      <button class="feed-post-btn" onclick="sendDM()">→</button>
+    </div>
   </div>
 </div>
 
@@ -570,6 +619,14 @@ auth.onAuthStateChanged(async (user) => {
     if (userProfile?.role === 'admin') document.getElementById('admin-panel-btn').style.display = 'block';
     if (userProfile?.isPremium) unlockPedestrianFeature();
     if (typeof updateComposeVisibility === 'function') updateComposeVisibility();
+    // Watch for unread DMs
+    database.ref(`user_convs/${user.uid}`).on('value', snap => {
+      const val = snap.val();
+      const badge = document.getElementById('dm-unread-badge');
+      if (!badge) return;
+      const hasUnread = val && Object.values(val).some(c => c.unread === true);
+      badge.style.display = hasUnread ? 'block' : 'none';
+    });
   } else {
     document.getElementById('logged-out-ui').style.display = 'block';
     document.getElementById('logged-in-ui').style.display = 'none';
@@ -981,18 +1038,19 @@ const BANNED_WORDS = [
   'blyad', 'blya', 'pizd', 'huy', 'hui', 'ebat', 'ebal', 'suka', 'pidor', 'zalupa',
   'mudak', 'muda', 'cyka',
   // English (word-boundary matched)
-  'fuck', 'fuk', 'fvck', 'f0ck', 'fck', 'fuckers',
+  'fuck', 'fuk', 'fvck', 'f0ck', 'fck',
   'shit', 'sh1t', 'sht',
   'ass', 'arse', 'a55',
   'bitch', 'b1tch', 'btch',
   'bastard', 'bstrd',
+  'damn', 'crap',
   'cunt', 'c0nt',
   'dick', 'd1ck', 'dik',
   'cock', 'c0ck',
   'pussy',
   'whore', 'wh0re', 'hoe',
   'slut', 'sl0t',
-  'nigga', 'nigger', 'n1gga', 'niggers',
+  'nigga', 'nigger', 'n1gga',
   'faggot', 'fag', 'f4g',
   'retard', 'ret4rd',
   'piss', 'p1ss',
@@ -1001,7 +1059,8 @@ const BANNED_WORDS = [
   'wank', 'wanker',
   'motherfucker', 'mofo',
   'asshole', 'arsehole', 'a55hole',
-  'dumbass', 'dipshit', 'jackass', 'horseshit', 'bullshit',
+  'dumbass', 'dipshit', 'jackass', 'horseshit', 'bullshit', 'goddamn',
+  'wtf', 'stfu'
 ];
 
 // Compound words — matched as substrings (no word boundary needed)
@@ -1153,12 +1212,29 @@ function buildPostHTML(key, post, isOwner) {
   `;
 }
 
+// --- DMs ---
+let currentDMConvId = null;
+let currentDMOtherUID = null;
+let currentDMOtherName = null;
+let dmListener = null;
+let inboxListener = null;
+
+function getDMConvId(uid1, uid2) { return [uid1, uid2].sort().join('_'); }
+
 async function openProfile(uid, username) {
   document.getElementById('profile-modal').style.display = 'flex';
   document.getElementById('profile-username').innerText = username;
   document.getElementById('profile-badge').innerText = '';
   document.getElementById('profile-bio').innerText = '';
   document.getElementById('profile-posts').innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+
+  const dmWrap = document.getElementById('profile-dm-btn-wrap');
+  if (auth.currentUser && auth.currentUser.uid !== uid) {
+    dmWrap.style.display = 'block';
+    document.getElementById('profile-dm-btn').onclick = () => startDMWith(uid, username);
+  } else {
+    dmWrap.style.display = 'none';
+  }
 
   const snap = await database.ref('users/' + uid).once('value');
   const u = snap.val();
@@ -1171,20 +1247,107 @@ async function openProfile(uid, username) {
   const postsContainer = document.getElementById('profile-posts');
   postsContainer.innerHTML = '';
   const val = feedSnap.val();
-  if (!val) {
-    postsContainer.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav ziņu.</div>';
-    return;
-  }
-  const posts = Object.entries(val).reverse();
-  posts.forEach(([key, post]) => {
+  if (!val) { postsContainer.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav ziņu.</div>'; return; }
+  Object.entries(val).reverse().forEach(([key, post]) => {
     const item = document.createElement('div');
     item.className = 'feed-item';
-    const canDelete = auth.currentUser && (auth.currentUser.uid === uid || userProfile?.role === 'admin');
-    item.innerHTML = buildPostHTML(key, post, canDelete);
+    item.innerHTML = buildPostHTML(key, post, auth.currentUser && (auth.currentUser.uid === uid || userProfile?.role === 'admin'));
     postsContainer.appendChild(item);
   });
 }
+
 function closeProfile() { document.getElementById('profile-modal').style.display = 'none'; }
+
+function startDMWith(uid, username) {
+  currentDMOtherUID = uid;
+  currentDMOtherName = username;
+  currentDMConvId = getDMConvId(auth.currentUser.uid, uid);
+  document.getElementById('profile-modal').style.display = 'none';
+  document.getElementById('inbox-modal').style.display = 'none';
+  openDMChat();
+}
+
+function openDMChat() {
+  document.getElementById('dm-modal').style.display = 'flex';
+  document.getElementById('dm-chat-title').innerText = currentDMOtherName;
+  document.getElementById('dm-messages').innerHTML = '';
+  if (dmListener) { database.ref(`dms/${currentDMConvId}/messages`).off('value', dmListener); dmListener = null; }
+  dmListener = database.ref(`dms/${currentDMConvId}/messages`).orderByChild('timestamp').on('value', snap => {
+    const container = document.getElementById('dm-messages');
+    container.innerHTML = '';
+    const val = snap.val();
+    if (val) {
+      Object.values(val).forEach(msg => {
+        const isMine = msg.senderUID === auth.currentUser.uid;
+        const wrap = document.createElement('div');
+        wrap.className = `dm-bubble-wrap ${isMine ? 'sent' : 'received'}`;
+        wrap.innerHTML = `
+          <div class="dm-bubble ${isMine ? 'sent' : 'received'}">${msg.text}</div>
+          <div class="dm-bubble-meta">${isMine ? 'Tu' : msg.senderName} · ${timeAgo(msg.timestamp)}</div>
+        `;
+        container.appendChild(wrap);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+    database.ref(`user_convs/${auth.currentUser.uid}/${currentDMConvId}/unread`).set(false);
+  });
+}
+
+async function sendDM() {
+  const input = document.getElementById('dm-input');
+  const text = filterText(input.value.trim());
+  if (!text || !auth.currentUser) return;
+  const myUID = auth.currentUser.uid;
+  const myName = userProfile?.username || auth.currentUser.displayName || 'Lietotājs';
+  await database.ref(`dms/${currentDMConvId}/messages`).push({
+    senderUID: myUID, senderName: myName, text, timestamp: Date.now()
+  });
+  const ts = Date.now();
+  // Store inbox entry under each user's own node
+  await database.ref(`user_convs/${myUID}/${currentDMConvId}`).set({
+    otherUID: currentDMOtherUID, otherName: currentDMOtherName, lastMsg: text, lastTs: ts, unread: false
+  });
+  await database.ref(`user_convs/${currentDMOtherUID}/${currentDMConvId}`).set({
+    otherUID: myUID, otherName: myName, lastMsg: text, lastTs: ts, unread: true
+  });
+  input.value = '';
+}
+
+function closeDM() {
+  if (dmListener) { database.ref(`dms/${currentDMConvId}/messages`).off('value', dmListener); dmListener = null; }
+  document.getElementById('dm-modal').style.display = 'none';
+}
+
+function closeDMGoBack() { closeDM(); openInbox(); }
+
+function openInbox() {
+  if (!auth.currentUser) return;
+  document.getElementById('inbox-modal').style.display = 'flex';
+  const list = document.getElementById('inbox-list');
+  list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+  if (inboxListener) { database.ref(`user_convs/${auth.currentUser.uid}`).off('value', inboxListener); inboxListener = null; }
+  inboxListener = database.ref(`user_convs/${auth.currentUser.uid}`).on('value', snap => {
+    const val = snap.val();
+    if (!val) { list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav sarunu.</div>'; return; }
+    const convs = Object.entries(val).sort((a, b) => (b[1].lastTs || 0) - (a[1].lastTs || 0));
+    let hasUnread = false;
+    list.innerHTML = '';
+    convs.forEach(([id, meta]) => {
+      if (meta.unread) hasUnread = true;
+      const item = document.createElement('div');
+      item.className = `inbox-item${meta.unread ? ' unread' : ''}`;
+      item.innerHTML = `<div class="inbox-item-name">${meta.otherName}</div><div class="inbox-item-preview">${meta.lastMsg || ''}</div>`;
+      item.onclick = () => { currentDMConvId = id; currentDMOtherUID = meta.otherUID; currentDMOtherName = meta.otherName; closeInbox(); openDMChat(); };
+      list.appendChild(item);
+    });
+    document.getElementById('dm-unread-badge').style.display = hasUnread ? 'block' : 'none';
+  });
+}
+
+function closeInbox() {
+  if (inboxListener && auth.currentUser) { database.ref(`user_convs/${auth.currentUser.uid}`).off('value', inboxListener); inboxListener = null; }
+  document.getElementById('inbox-modal').style.display = 'none';
+}
 
 function openLightbox(src) {
   document.getElementById('lightbox-img').src = src;
