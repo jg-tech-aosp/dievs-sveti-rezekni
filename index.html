@@ -279,6 +279,79 @@
       padding: 30px 0;
     }
 
+    /* Likes & Comments */
+    .feed-item-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      align-items: center;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.6;
+      transition: 0.15s;
+    }
+    .action-btn:hover { background: var(--input-bg); opacity: 1; }
+    .action-btn.liked { color: #FF3B30; opacity: 1; }
+
+    .comments-section {
+      display: none;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .comment-item {
+      padding: 6px 0;
+      font-size: 0.82rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-author { font-weight: 700; cursor: pointer; }
+    .comment-author:hover { text-decoration: underline; }
+    .comment-text { opacity: 0.85; margin-top: 2px; word-break: break-word; }
+    .comment-meta { font-size: 0.7rem; opacity: 0.4; white-space: nowrap; }
+    .comment-compose {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .comment-compose input {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+    }
+    .comment-send-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
     /* Lightbox */
     .lightbox {
       position: fixed;
@@ -426,7 +499,7 @@
     </div>
   </div>
   <div class="feed-compose" id="feed-compose">
-    <textarea id="feed-text" rows="3" placeholder="Kas jauns Rēzeknē?"></textarea>
+    <textarea id="feed-text" rows="3" placeholder="Ko jauns Rēzeknē?"></textarea>
     <div class="feed-compose-actions">
       <label class="feed-photo-label" title="Pievienot foto">
         📷
@@ -797,6 +870,100 @@ async function deletePost(key) {
   }
 }
 
+// --- LIKES & COMMENTS ---
+async function toggleLike(postId, btnEl) {
+  if (!auth.currentUser) return openAuth('login');
+  const uid = auth.currentUser.uid;
+  const likeRef = database.ref(`feed/${postId}/likes/${uid}`);
+  const snap = await likeRef.once('value');
+  if (snap.exists()) {
+    await likeRef.remove();
+  } else {
+    await likeRef.set(true);
+  }
+}
+
+function toggleComments(postId) {
+  const section = document.getElementById(`comments-${postId}`);
+  if (!section) return;
+  const isOpen = section.style.display === 'block';
+  section.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) loadComments(postId);
+}
+
+function loadComments(postId) {
+  const container = document.getElementById(`comment-list-${postId}`);
+  if (!container) return;
+  database.ref(`feed/${postId}/comments`).orderByChild('timestamp').on('value', (snap) => {
+    container.innerHTML = '';
+    const val = snap.val();
+    if (!val) { container.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;padding:4px 0;">Nav komentāru.</div>'; return; }
+    Object.entries(val).forEach(([cid, c]) => {
+      const canDelete = auth.currentUser && (auth.currentUser.uid === c.uid || userProfile?.role === 'admin');
+      const div = document.createElement('div');
+      div.className = 'comment-item';
+      div.innerHTML = `
+        <div style="flex:1;">
+          <span class="comment-author" onclick="openProfile('${c.uid}','${c.username}')">${c.username}</span>
+          <span class="comment-meta"> · ${timeAgo(c.timestamp)}</span>
+          <div class="comment-text">${c.text}</div>
+        </div>
+        ${canDelete ? `<button class="feed-item-delete" onclick="deleteComment('${postId}','${cid}')">✕</button>` : ''}
+      `;
+      container.appendChild(div);
+    });
+  });
+}
+
+async function submitComment(postId) {
+  if (!auth.currentUser) return openAuth('login');
+  const input = document.getElementById(`comment-input-${postId}`);
+  const text = input.value.trim();
+  if (!text) return;
+  await database.ref(`feed/${postId}/comments`).push({
+    uid: auth.currentUser.uid,
+    username: userProfile?.username || auth.currentUser.displayName || 'Lietotājs',
+    text,
+    timestamp: Date.now()
+  });
+  input.value = '';
+}
+
+async function deleteComment(postId, cid) {
+  if (confirm('Dzēst komentāru?')) await database.ref(`feed/${postId}/comments/${cid}`).remove();
+}
+
+function buildPostHTML(key, post, isOwner) {
+  const likes = post.likes ? Object.keys(post.likes).length : 0;
+  const comments = post.comments ? Object.keys(post.comments).length : 0;
+  const isLiked = auth.currentUser && post.likes && post.likes[auth.currentUser.uid];
+  return `
+    <div class="feed-item-header">
+      <span class="feed-item-user" onclick="openProfile('${post.uid}', '${post.username}')">${post.username}</span>
+      <span class="feed-item-time">${timeAgo(post.timestamp)}</span>
+    </div>
+    ${post.text ? `<div class="feed-item-text">${post.text}</div>` : ''}
+    ${post.photo ? `<img class="feed-item-img" src="${post.photo}" alt="foto" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
+    <div class="feed-item-actions">
+      <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${key}', this)">
+        ❤️ <span>${likes}</span>
+      </button>
+      <button class="action-btn" onclick="toggleComments('${key}')">
+        💬 <span>${comments}</span>
+      </button>
+      ${isOwner ? `<button class="feed-item-delete" style="margin-left:auto;" onclick="deletePost('${key}')">Dzēst</button>` : ''}
+    </div>
+    <div class="comments-section" id="comments-${key}">
+      <div id="comment-list-${key}"></div>
+      ${auth.currentUser ? `
+        <div class="comment-compose">
+          <input type="text" id="comment-input-${key}" placeholder="Raksti komentāru..." onkeydown="if(event.key==='Enter') submitComment('${key}')">
+          <button class="comment-send-btn" onclick="submitComment('${key}')">→</button>
+        </div>` : '<div style="opacity:0.4;font-size:0.8rem;margin-top:6px;">Piesakieties, lai komentētu.</div>'}
+    </div>
+  `;
+}
+
 async function openProfile(uid, username) {
   document.getElementById('profile-modal').style.display = 'flex';
   document.getElementById('profile-username').innerText = username;
@@ -826,14 +993,7 @@ async function openProfile(uid, username) {
     const item = document.createElement('div');
     item.className = 'feed-item';
     const canDelete = auth.currentUser && (auth.currentUser.uid === uid || userProfile?.role === 'admin');
-    item.innerHTML = `
-      <div class="feed-item-header">
-        <span class="feed-item-time">${timeAgo(post.timestamp)}</span>
-      </div>
-      ${post.text ? `<div class="feed-item-text">${post.text}</div>` : ''}
-      ${post.photo ? `<img class="feed-item-img" src="${post.photo}" alt="foto" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
-      ${canDelete ? `<button class="feed-item-delete" onclick="deletePost('${key}')">Dzēst</button>` : ''}
-    `;
+    item.innerHTML = buildPostHTML(key, post, canDelete);
     postsContainer.appendChild(item);
   });
 }
@@ -861,15 +1021,7 @@ function refreshFeed() {
       const item = document.createElement('div');
       item.className = 'feed-item';
       const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
-      item.innerHTML = `
-        <div class="feed-item-header">
-          <span class="feed-item-user" onclick="openProfile('${post.uid}', '${post.username}')">${post.username}</span>
-          <span class="feed-item-time">${timeAgo(post.timestamp)}</span>
-        </div>
-        ${post.text ? `<div class="feed-item-text">${post.text}</div>` : ''}
-        ${post.photo ? `<img class="feed-item-img" src="${post.photo}" alt="foto" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
-        ${isOwner ? `<button class="feed-item-delete" onclick="deletePost('${key}')">Dzēst</button>` : ''}
-      `;
+      item.innerHTML = buildPostHTML(key, post, isOwner);
       list.appendChild(item);
     });
   });
@@ -892,15 +1044,7 @@ database.ref('feed').orderByChild('timestamp').on('value', (snapshot) => {
     const item = document.createElement('div');
     item.className = 'feed-item';
     const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
-    item.innerHTML = `
-      <div class="feed-item-header">
-        <span class="feed-item-user" onclick="openProfile('${post.uid}', '${post.username}')">${post.username}</span>
-        <span class="feed-item-time">${timeAgo(post.timestamp)}</span>
-      </div>
-      ${post.text ? `<div class="feed-item-text">${post.text}</div>` : ''}
-      ${post.photo ? `<img class="feed-item-img" src="${post.photo}" alt="foto" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
-      ${isOwner ? `<button class="feed-item-delete" onclick="deletePost('${key}')">Dzēst</button>` : ''}
-    `;
+    item.innerHTML = buildPostHTML(key, post, isOwner);
     list.appendChild(item);
   });
 });
