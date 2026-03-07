@@ -1375,7 +1375,7 @@ async function openFollowList(type) {
   container.innerHTML = '';
   const uids = Object.keys(val);
   for (const u of uids) {
-    const uSnap = await database.ref(`users/${u}`).once('value');
+    const uSnap = await database.ref(`user_index/${u}`).once('value');
     const uData = uSnap.val();
     const name = uData?.username || 'Lietotājs';
     const item = document.createElement('div');
