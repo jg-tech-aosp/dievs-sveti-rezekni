@@ -479,6 +479,7 @@
       <label class="option-card"><input type="checkbox" id="pedCheck" disabled> <span style="margin-left:10px;">🚶 Netīrs gājējiem</span></label>
       <div id="pay-notice">
         <p style="font-size: 0.75rem; text-align: center;">Premium funkcija: 0.67€</p>
+        <div id="paypal-guest-msg" style="display:none; font-size:0.78rem; text-align:center; opacity:0.7; padding:8px 0;">Pierakstieties, lai iegādātos Premium.</div>
         <div id="paypal-button-container"></div>
       </div>
     </div>
@@ -847,6 +848,13 @@ function toggleFeed() {
 
 function updateComposeVisibility() {
   document.getElementById('feed-compose').style.display = auth.currentUser ? 'flex' : 'none';
+  // Show/hide PayPal button based on login state
+  const paypalBtn = document.getElementById('paypal-button-container');
+  const guestMsg = document.getElementById('paypal-guest-msg');
+  if (paypalBtn && guestMsg) {
+    paypalBtn.style.display = auth.currentUser ? 'block' : 'none';
+    guestMsg.style.display = auth.currentUser ? 'none' : 'block';
+  }
 }
 
 function handlePhotoSelect(event) {
