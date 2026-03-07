@@ -613,7 +613,10 @@
 </div>
 
 <div class="control-panel" id="panel" style="display:none;">
-  <h2 style="margin: 0 0 10px 0; flex-shrink: 0;">Ielas Statuss</h2>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-shrink:0;">
+    <h2 style="margin:0;">Ielas Statuss</h2>
+    <button onclick="closePanel()" style="background:none;border:none;color:var(--text-main);font-size:1.2rem;cursor:pointer;opacity:0.5;padding:0 4px;">✕</button>
+  </div>
   <div class="panel-content">
     <label class="option-card"><input type="checkbox" id="carsCheck"> <span style="margin-left:10px;">🚗 Netīrs braucējiem</span></label>
     <div id="pedSection" style="opacity:0.5; border-top:1px solid var(--border); margin-top:15px; padding-top:15px;">
@@ -956,6 +959,14 @@ function findMyLocation() {
     map.setView([lat, lng], 17);
     L.circle([lat, lng], { radius: 10, color: '#007AFF' }).addTo(map).bindPopup("Tu esi šeit").openPopup();
   }, () => alert("Atļauja liegta."));
+}
+
+function closePanel() {
+  document.getElementById('panel').style.display = 'none';
+  if (selectedLayer) {
+    selectedLayer.setStyle({ weight: 6, opacity: 0.8 });
+    selectedLayer = null;
+  }
 }
 
 function applyStatus() {
@@ -1813,6 +1824,15 @@ database.ref('feed').orderByChild('timestamp').on('value', (snapshot) => {
 });
 
 loadStreets();
+</script>
+
+<div id="test-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#FF3B30; color:white; text-align:center; padding:8px; font-size:0.78rem; font-weight:700; letter-spacing:0.05em;">
+  ⚠️ THIS IS A TEST VERSION. IT MAY BE UNSTABLE. DEVS ONLY ⚠️
+</div>
+<script>
+  if (window.location.href.includes('dievs-sveti-rezekni-test')) {
+    document.getElementById('test-banner').style.display = 'block';
+  }
 </script>
 </body>
 </html>
