@@ -69,13 +69,214 @@
     .btn-small { padding: 6px 12px; border-radius: 8px; border: none; font-size: 0.75rem; cursor: pointer; font-weight: 700; transition: 0.2s; }
 
     /* Control Panel */
-    .control-panel { position: absolute; z-index: 1000; background: var(--bg-panel); backdrop-filter: blur(20px); border: 1px solid var(--border); box-shadow: var(--shadow); color: var(--text-main); display: flex; flex-direction: column; max-height: 85vh; }
-    @media (min-width: 601px) { .control-panel { bottom: 30px; left: 30px; width: 340px; border-radius: 24px; padding: 24px; } }
-    @media (max-width: 600px) { .control-panel { bottom: 20px; left: 5%; right: 5%; width: 90%; border-radius: 28px; padding: 20px; box-sizing: border-box; } }
+    .control-panel {
+      position: absolute;
+      z-index: 1000;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      /* FIX: constrain height so panel never grows beyond viewport */
+      max-height: min(85vh, 520px);
+    }
+    @media (min-width: 601px) {
+      .control-panel { bottom: 30px; left: 30px; width: 340px; border-radius: 24px; padding: 24px; }
+    }
+    @media (max-width: 600px) {
+      .control-panel { bottom: 20px; left: 5%; right: 5%; width: 90%; border-radius: 28px; padding: 20px; box-sizing: border-box; }
+    }
+
+    /* FIX: make the scrollable content area inside the panel */
+    .panel-content {
+      overflow-y: auto;
+      flex: 1;
+      /* Custom scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .panel-content::-webkit-scrollbar { width: 4px; }
+    .panel-content::-webkit-scrollbar-track { background: transparent; }
+    .panel-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
     .option-card { display: flex; align-items: center; padding: 14px; margin: 6px 0; background: var(--input-bg); border-radius: 16px; }
-    .btn-apply { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    .btn-apply { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 10px; /* FIX: don't shrink the save button */ flex-shrink: 0; }
     .btn-danger { background: none; border: none; color: #FF3B30; cursor: pointer; font-size: 0.8rem; text-decoration: underline; width: 100%; margin-top: 20px; }
+
+    /* FIX: constrain PayPal container so it doesn't blow up the panel */
+    #paypal-button-container {
+      max-height: 200px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* FIX: PayPal iframes inside the container should not overflow */
+    #paypal-button-container iframe {
+      max-width: 100% !important;
+    }
+
+    /* --- BLOG / FEED --- */
+    .feed-fab {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,122,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feed-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(0,122,255,0.5); }
+
+    .feed-panel {
+      position: absolute;
+      bottom: 96px;
+      right: 30px;
+      z-index: 1000;
+      width: 320px;
+      max-height: 70vh;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 24px;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      color: var(--text-main);
+    }
+    @media (max-width: 600px) {
+      .feed-panel { right: 5%; left: 5%; width: 90%; bottom: 90px; }
+      .feed-fab { right: 20px; bottom: 20px; }
+    }
+
+    .feed-header {
+      padding: 18px 20px 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feed-compose {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .feed-compose textarea {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      padding: 10px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      resize: none;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .feed-compose-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .feed-photo-label {
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      transition: 0.15s;
+    }
+    .feed-photo-label:hover { background: var(--border); }
+    .feed-photo-preview {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: none;
+    }
+    .feed-post-btn {
+      margin-left: auto;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .feed-list {
+      overflow-y: auto;
+      flex: 1;
+      padding: 10px 12px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .feed-list::-webkit-scrollbar { width: 4px; }
+    .feed-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .feed-item {
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--input-bg);
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+    .feed-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .feed-item-user { font-weight: 700; font-size: 0.85rem; }
+    .feed-item-time { font-size: 0.72rem; opacity: 0.5; }
+    .feed-item-text { font-size: 0.88rem; line-height: 1.4; word-break: break-word; }
+    .feed-item-img {
+      margin-top: 8px;
+      width: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+      max-height: 180px;
+      display: block;
+    }
+    .feed-item-delete {
+      background: none;
+      border: none;
+      color: #FF3B30;
+      font-size: 0.72rem;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 6px;
+      text-decoration: underline;
+    }
+    .feed-empty {
+      text-align: center;
+      opacity: 0.4;
+      font-size: 0.85rem;
+      padding: 30px 0;
+    }
   </style>
 </head>
 <body>
@@ -98,6 +299,7 @@
     <div id="search-results" class="search-results"></div>
   </div>
   <button class="control-btn" onclick="findMyLocation()" title="Mana atrašanās vieta">📍</button>
+  <button class="control-btn" id="reload-streets-btn" onclick="retryLoadStreets()" title="Pārlādēt ielas">🔃</button>
 </div>
 
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
@@ -156,7 +358,7 @@
 </div>
 
 <div class="control-panel" id="panel" style="display:none;">
-  <h2>Ielas Statuss</h2>
+  <h2 style="margin: 0 0 10px 0; flex-shrink: 0;">Ielas Statuss</h2>
   <div class="panel-content">
     <label class="option-card"><input type="checkbox" id="carsCheck"> <span style="margin-left:10px;">🚗 Netīrs braucējiem</span></label>
     <div id="pedSection" style="opacity:0.5; border-top:1px solid var(--border); margin-top:15px; padding-top:15px;">
@@ -168,6 +370,34 @@
     </div>
   </div>
   <button onclick="applyStatus()" class="btn-apply">Saglabāt</button>
+</div>
+
+<!-- Feed FAB -->
+<button class="feed-fab" onclick="toggleFeed()" title="Kopienas ziņas">💬</button>
+
+<!-- Feed Panel -->
+<div class="feed-panel" id="feed-panel">
+  <div class="feed-header">
+    <span>💬 Kopienas ziņas</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button onclick="refreshFeed()" title="Atjaunot" style="background:none;border:none;color:var(--text-main);font-size:1rem;cursor:pointer;opacity:0.5;">🔄</button>
+      <button onclick="toggleFeed()" style="background:none;border:none;color:var(--text-main);font-size:1rem;cursor:pointer;opacity:0.5;">✕</button>
+    </div>
+  </div>
+  <div class="feed-compose" id="feed-compose">
+    <textarea id="feed-text" rows="3" placeholder="Ko jauns Rēzeknē?"></textarea>
+    <div class="feed-compose-actions">
+      <label class="feed-photo-label" title="Pievienot foto">
+        📷
+        <input type="file" id="feed-photo-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)">
+      </label>
+      <img id="feed-photo-preview" class="feed-photo-preview" alt="preview">
+      <button class="feed-post-btn" onclick="submitPost()">Publicēt</button>
+    </div>
+  </div>
+  <div class="feed-list" id="feed-list">
+    <div class="feed-empty" id="feed-empty">Nav ziņu. Esi pirmais!</div>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -211,9 +441,11 @@ auth.onAuthStateChanged(async (user) => {
     tag.disabled = false;
     if (userProfile?.role === 'admin') document.getElementById('admin-panel-btn').style.display = 'block';
     if (userProfile?.isPremium) unlockPedestrianFeature();
+    if (typeof updateComposeVisibility === 'function') updateComposeVisibility();
   } else {
     document.getElementById('logged-out-ui').style.display = 'block';
     document.getElementById('logged-in-ui').style.display = 'none';
+    if (typeof updateComposeVisibility === 'function') updateComposeVisibility();
   }
 });
 
@@ -328,6 +560,21 @@ database.ref('streets').on('value', (snapshot) => {
   }
 });
 
+async function retryLoadStreets() {
+  const btn = document.getElementById('reload-streets-btn');
+  btn.innerText = '⏳';
+  btn.style.pointerEvents = 'none';
+  // Clear existing layers
+  for (let id in streetLayersById) {
+    map.removeLayer(streetLayersById[id]);
+  }
+  streetLayersById = {};
+  selectedLayer = null;
+  await loadStreets();
+  btn.innerText = '🔃';
+  btn.style.pointerEvents = 'auto';
+}
+
 async function loadStreets() {
   const query = `[out:json][timeout:25];(way["highway"~"trunk|primary|secondary|tertiary|residential|unclassified|living_street"](56.45,27.25,56.55,27.42););out geom;`;
   try {
@@ -431,6 +678,144 @@ function closeAuth() { document.getElementById('auth-modal').style.display='none
 function closeAdminDashboard() { document.getElementById('admin-dashboard').style.display='none'; }
 function toggleTheme() { setTheme(currentTheme === 'light' ? 'dark' : 'light'); }
 function handleLogout() { auth.signOut().then(() => location.reload()); }
+// --- BLOG FEED ---
+let feedPhotoBase64 = null;
+let isFeedOpen = false;
+
+function toggleFeed() {
+  isFeedOpen = !isFeedOpen;
+  const panel = document.getElementById('feed-panel');
+  panel.style.display = isFeedOpen ? 'flex' : 'none';
+  if (isFeedOpen) updateComposeVisibility();
+}
+
+function updateComposeVisibility() {
+  document.getElementById('feed-compose').style.display = auth.currentUser ? 'flex' : 'none';
+}
+
+function handlePhotoSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  // Resize/compress before storing as base64
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      feedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      const preview = document.getElementById('feed-photo-preview');
+      preview.src = feedPhotoBase64;
+      preview.style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitPost() {
+  const text = document.getElementById('feed-text').value.trim();
+  if (!text && !feedPhotoBase64) return;
+  if (!auth.currentUser) return;
+
+  const post = {
+    uid: auth.currentUser.uid,
+    username: userProfile?.username || auth.currentUser.displayName || 'Lietotājs',
+    text: text,
+    photo: feedPhotoBase64 || null,
+    timestamp: Date.now()
+  };
+
+  await database.ref('feed').push(post);
+
+  // Reset compose
+  document.getElementById('feed-text').value = '';
+  document.getElementById('feed-photo-preview').style.display = 'none';
+  document.getElementById('feed-photo-input').value = '';
+  feedPhotoBase64 = null;
+}
+
+function timeAgo(ts) {
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60) return 'tikko';
+  if (diff < 3600) return Math.floor(diff/60) + ' min. atpakaļ';
+  if (diff < 86400) return Math.floor(diff/3600) + ' st. atpakaļ';
+  return Math.floor(diff/86400) + ' d. atpakaļ';
+}
+
+async function deletePost(key) {
+  if (confirm('Dzēst ziņu?')) {
+    await database.ref('feed/' + key).remove();
+  }
+}
+
+function refreshFeed() {
+  database.ref('feed').orderByChild('timestamp').once('value', (snapshot) => {
+    const list = document.getElementById('feed-list');
+    const val = snapshot.val();
+    list.innerHTML = '';
+    if (!val) {
+      list.innerHTML = '<div class="feed-empty">Nav ziņu. Esi pirmais!</div>';
+      return;
+    }
+    const posts = Object.entries(val).reverse();
+    posts.forEach(([key, post]) => {
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
+      item.innerHTML = `
+        <div class="feed-item-header">
+          <span class="feed-item-user">${post.username}</span>
+          <span class="feed-item-time">${timeAgo(post.timestamp)}</span>
+        </div>
+        ${post.text ? `<div class="feed-item-text">${post.text}</div>` : ''}
+        ${post.photo ? `<img class="feed-item-img" src="${post.photo}" alt="foto">` : ''}
+        ${isOwner ? `<button class="feed-item-delete" onclick="deletePost('${key}')">Dzēst</button>` : ''}
+      `;
+      list.appendChild(item);
+    });
+  });
+}
+
+
+database.ref('feed').orderByChild('timestamp').on('value', (snapshot) => {
+  const list = document.getElementById('feed-list');
+  const empty = document.getElementById('feed-empty');
+  const val = snapshot.val();
+
+  if (!val) {
+    list.innerHTML = '';
+    list.appendChild(empty);
+    empty.style.display = 'block';
+    return;
+  }
+
+  const posts = Object.entries(val).reverse(); // newest first
+  empty.style.display = 'none';
+  list.innerHTML = '';
+
+  posts.forEach(([key, post]) => {
+    const item = document.createElement('div');
+    item.className = 'feed-item';
+    const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
+    item.innerHTML = `
+      <div class="feed-item-header">
+        <span class="feed-item-user">${post.username}</span>
+        <span class="feed-item-time">${timeAgo(post.timestamp)}</span>
+      </div>
+      ${post.text ? `<div class="feed-item-text">${post.text}</div>` : ''}
+      ${post.photo ? `<img class="feed-item-img" src="${post.photo}" alt="foto">` : ''}
+      ${isOwner ? `<button class="feed-item-delete" onclick="deletePost('${key}')">Dzēst</button>` : ''}
+    `;
+    list.appendChild(item);
+  });
+});
+
 loadStreets();
 </script>
 </body>
