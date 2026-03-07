@@ -58,6 +58,10 @@
     .modal-card input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; }
     .label-hint { font-size: 0.75rem; opacity: 0.6; margin-top: 10px; display: block; }
 
+    /* Google Button Styling */
+    .google-btn { background: #fff; color: #757575; border: 1px solid #ddd; padding: 10px; border-radius: 12px; width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-btn:hover { background: #f1f1f1; }
+
     /* Admin Dashboard */
     .admin-card { width: 90%; max-width: 600px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
     .user-list { overflow-y: auto; flex: 1; margin-top: 15px; }
@@ -109,6 +113,12 @@
       <input type="date" id="dob" title="Dzimšanas datums">
     </div>
     <button class="btn-apply" onclick="submitAuth()">Apstiprināt</button>
+    
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18"> 
+      Turpināt ar Google
+    </button>
+
     <button onclick="closeAuth()" style="margin-top:10px; width:100%; background:none; border:none; color:var(--text-main); opacity:0.5; cursor:pointer;">Atcelt</button>
   </div>
 </div>
@@ -176,6 +186,9 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
 
+// Define Google Provider
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
 let userProfile = null;
 let allUsers = {};
 let allStreetData = [];
@@ -194,7 +207,7 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('logged-out-ui').style.display = 'none';
     document.getElementById('logged-in-ui').style.display = 'block';
     const tag = document.getElementById('user-tag');
-    tag.innerText = userProfile?.username || "Lietotājs";
+    tag.innerText = userProfile?.username || user.displayName || "Lietotājs";
     tag.disabled = false;
     if (userProfile?.role === 'admin') document.getElementById('admin-panel-btn').style.display = 'block';
     if (userProfile?.isPremium) unlockPedestrianFeature();
@@ -203,6 +216,28 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('logged-in-ui').style.display = 'none';
   }
 });
+
+// --- GOOGLE LOGIN FUNCTION ---
+async function signInWithGoogle() {
+  try {
+    const result = await auth.signInWithPopup(googleProvider);
+    const user = result.user;
+    
+    // Check if user exists in RTDB, if not, create profile
+    const snapshot = await database.ref('users/' + user.uid).once('value');
+    if (!snapshot.exists()) {
+      await database.ref('users/' + user.uid).set({
+        username: user.displayName,
+        dob: "",
+        role: 'user',
+        isPremium: false
+      });
+    }
+    closeAuth();
+  } catch (error) {
+    alert("Google kļūda: " + error.message);
+  }
+}
 
 // --- SETTINGS ---
 function openSettings() {
@@ -400,9 +435,3 @@ loadStreets();
 </script>
 </body>
 </html>
-
-
-
-
-
-
