@@ -1323,9 +1323,12 @@ async function openProfile(uid, username) {
 
   const snap = await database.ref('users/' + uid).once('value');
   const u = snap.val();
-  if (u) {
-    document.getElementById('profile-badge').innerHTML = u.isPremium ? '✨ <strong>Premium</strong>' : '👤 Bezmaksas';
-    document.getElementById('profile-bio').innerText = u.bio || 'Nav bio.';
+  // Fall back to user_index if no data (non-admin reading another user)
+  const indexSnap = u ? null : await database.ref('user_index/' + uid).once('value');
+  const uData = u || indexSnap?.val();
+  if (uData) {
+    document.getElementById('profile-badge').innerHTML = uData.isPremium ? '✨ <strong>Premium</strong>' : '👤 Bezmaksas';
+    document.getElementById('profile-bio').innerText = uData.bio || 'Nav bio.';
   }
 
   const feedSnap = await database.ref('feed').orderByChild('uid').equalTo(uid).once('value');
