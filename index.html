@@ -500,6 +500,7 @@
     <div id="profile-action-btns" style="display:flex; gap:8px; margin-bottom:12px; flex-shrink:0;">
       <button id="profile-follow-btn" class="btn-apply" style="display:none; margin:0; padding:10px; flex:1;" onclick="toggleFollow()">Sekot</button>
       <button id="profile-dm-btn-wrap" class="btn-apply" style="display:none; margin:0; padding:10px; flex:1; background:var(--input-bg); color:var(--text-main); border:1px solid var(--border);" onclick="startDMFromProfile()">💬 Sūtīt ziņu</button>
+      <button id="profile-block-btn" class="btn-apply" style="display:none; margin:0; padding:10px; background:var(--input-bg); color:#FF3B30; border:1px solid #FF3B30;" onclick="toggleBlock()">🚫 Bloķēt</button>
     </div>
     <div style="font-weight:700; font-size:0.8rem; opacity:0.5; margin-bottom:8px; flex-shrink:0;">ZIŅAS</div>
     <div id="profile-posts" style="overflow-y:auto; flex:1; scrollbar-width:thin;"></div>
@@ -729,6 +730,8 @@ auth.onAuthStateChanged(async (user) => {
     });
     // Watch for unread notifications
     watchNotifBadge(user.uid);
+    // Load blocked users
+    loadBlockedUsers(user.uid);
   } else {
     document.getElementById('logged-out-ui').style.display = 'block';
     document.getElementById('logged-in-ui').style.display = 'none';
@@ -1148,6 +1151,7 @@ async function submitPost() {
     uid: auth.currentUser.uid,
     username: userProfile?.username || auth.currentUser.displayName || 'Lietotājs',
     isPremium: userProfile?.isPremium || false,
+    isAdmin: userProfile?.role === 'admin' || false,
     text: filterText(text),
     photos: feedPhotos.length > 0 ? feedPhotos : null,
     timestamp: Date.now()
@@ -1300,7 +1304,7 @@ function loadComments(postId) {
     if (!val) { container.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;padding:4px 0;">Nav komentāru.</div>'; return; }
     Object.entries(val).forEach(([cid, c]) => {
       const canDelete = auth.currentUser && (auth.currentUser.uid === c.uid || userProfile?.role === 'admin');
-      const badge = c.isPremium ? ' ✨' : '';
+      const badge = c.isAdmin ? ' 🛡️' : (c.isPremium ? ' ✨' : '');
       const div = document.createElement('div');
       div.className = 'comment-item';
       div.innerHTML = `
@@ -1329,6 +1333,7 @@ async function submitComment(postId) {
     uid: auth.currentUser.uid,
     username: userProfile?.username || auth.currentUser.displayName || 'Lietotājs',
     isPremium: userProfile?.isPremium || false,
+    isAdmin: userProfile?.role === 'admin' || false,
     text: filterText(text),
     timestamp: Date.now()
   });
@@ -1353,7 +1358,7 @@ function buildPostHTML(key, post, isOwner) {
   const likes = post.likes ? Object.keys(post.likes).length : 0;
   const comments = post.comments ? Object.keys(post.comments).length : 0;
   const isLiked = auth.currentUser && post.likes && post.likes[auth.currentUser.uid];
-  const badge = post.isPremium ? ' ✨' : '';
+  const badge = post.isAdmin ? ' 🛡️' : (post.isPremium ? ' ✨' : '');
 
   // Support both old single photo and new multi-photo
   const photos = post.photos ? Object.values(post.photos) : (post.photo ? [post.photo] : []);
@@ -1412,18 +1417,33 @@ async function openProfile(uid, username) {
   // Follow button
   const followBtn = document.getElementById('profile-follow-btn');
   const dmBtn = document.getElementById('profile-dm-btn-wrap');
+  const blockBtn = document.getElementById('profile-block-btn');
   if (auth.currentUser && !isOwnProfile) {
-    followBtn.style.display = 'block';
-    dmBtn.style.display = 'block';
-    // Check if already following
-    const followSnap = await database.ref(`followers/${uid}/${auth.currentUser.uid}`).once('value');
-    followBtn.innerText = followSnap.exists() ? 'Nesekot' : 'Sekot';
-    followBtn.style.background = followSnap.exists() ? 'var(--input-bg)' : 'var(--accent)';
-    followBtn.style.color = followSnap.exists() ? 'var(--text-main)' : 'white';
-    followBtn.style.border = followSnap.exists() ? '1px solid var(--border)' : 'none';
+    blockBtn.style.display = 'block';
+    // Check block status
+    const blockSnap = await database.ref(`blocks/${auth.currentUser.uid}/${uid}`).once('value');
+    const isBlocked = blockSnap.exists();
+    blockBtn.innerText = isBlocked ? '✅ Atbloķēt' : '🚫 Bloķēt';
+    blockBtn.style.color = isBlocked ? 'var(--accent)' : '#FF3B30';
+    blockBtn.style.border = isBlocked ? '1px solid var(--accent)' : '1px solid #FF3B30';
+    blockBtn.style.width = '30%';
+
+    if (isBlocked) {
+      followBtn.style.display = 'none';
+      dmBtn.style.display = 'none';
+    } else {
+      followBtn.style.display = 'block';
+      dmBtn.style.display = 'block';
+      const followSnap = await database.ref(`followers/${uid}/${auth.currentUser.uid}`).once('value');
+      followBtn.innerText = followSnap.exists() ? 'Nesekot' : 'Sekot';
+      followBtn.style.background = followSnap.exists() ? 'var(--input-bg)' : 'var(--accent)';
+      followBtn.style.color = followSnap.exists() ? 'var(--text-main)' : 'white';
+      followBtn.style.border = followSnap.exists() ? '1px solid var(--border)' : 'none';
+    }
   } else {
     followBtn.style.display = 'none';
     dmBtn.style.display = 'none';
+    blockBtn.style.display = 'none';
   }
 
   // Load follower/following counts
@@ -1440,7 +1460,7 @@ async function openProfile(uid, username) {
   const indexSnap = u ? null : await database.ref('user_index/' + uid).once('value');
   const uData = u || indexSnap?.val();
   if (uData) {
-    document.getElementById('profile-badge').innerHTML = uData.isPremium ? '✨ <strong>Premium</strong>' : '👤 Bezmaksas';
+    document.getElementById('profile-badge').innerHTML = uData.role === 'admin' ? '🛡️ <strong>Admin</strong>' : (uData.isPremium ? '✨ <strong>Premium</strong>' : '👤 Bezmaksas');
     document.getElementById('profile-bio').innerText = uData.bio || 'Nav bio.';
   }
 
@@ -1455,6 +1475,35 @@ async function openProfile(uid, username) {
     item.innerHTML = buildPostHTML(key, post, auth.currentUser && (auth.currentUser.uid === uid || userProfile?.role === 'admin'));
     postsContainer.appendChild(item);
   });
+}
+
+// --- BLOCKING ---
+let blockedUsers = new Set();
+
+function loadBlockedUsers(uid) {
+  database.ref(`blocks/${uid}`).on('value', snap => {
+    blockedUsers = new Set(snap.val() ? Object.keys(snap.val()) : []);
+  });
+}
+
+async function toggleBlock() {
+  if (!auth.currentUser || !currentProfileUID) return;
+  const myUID = auth.currentUser.uid;
+  const theirUID = currentProfileUID;
+  const blockRef = database.ref(`blocks/${myUID}/${theirUID}`);
+  const snap = await blockRef.once('value');
+  if (snap.exists()) {
+    await blockRef.remove();
+  } else {
+    await blockRef.set(true);
+    // Also unfollow both ways when blocking
+    await database.ref(`followers/${theirUID}/${myUID}`).remove();
+    await database.ref(`following/${myUID}/${theirUID}`).remove();
+    await database.ref(`followers/${myUID}/${theirUID}`).remove();
+    await database.ref(`following/${theirUID}/${myUID}`).remove();
+  }
+  const username = document.getElementById('profile-username').innerText;
+  openProfile(theirUID, username);
 }
 
 async function toggleFollow() {
@@ -1641,6 +1690,10 @@ function watchNotifBadge(uid) {
 
 function startDMFromProfile() {
   if (!currentProfileUID) return;
+  if (blockedUsers.has(currentProfileUID)) {
+    alert('Nevari sūtīt ziņas bloķētam lietotājam.');
+    return;
+  }
   const username = document.getElementById('profile-username').innerText;
   startDMWith(currentProfileUID, username);
 }
@@ -1794,6 +1847,7 @@ function refreshFeed() {
     }
     const posts = Object.entries(val).reverse();
     posts.forEach(([key, post]) => {
+      if (blockedUsers.has(post.uid)) return;
       const item = document.createElement('div');
       item.className = 'feed-item';
       const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
@@ -1813,15 +1867,16 @@ database.ref('feed').orderByChild('timestamp').on('value', (snapshot) => {
   }
 
   const posts = Object.entries(val).reverse();
-  list.innerHTML = '';
+    list.innerHTML = '';
 
-  posts.forEach(([key, post]) => {
-    const item = document.createElement('div');
-    item.className = 'feed-item';
-    const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
-    item.innerHTML = buildPostHTML(key, post, isOwner);
-    list.appendChild(item);
-  });
+    posts.forEach(([key, post]) => {
+      if (blockedUsers.has(post.uid)) return;
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      const isOwner = auth.currentUser && (auth.currentUser.uid === post.uid || userProfile?.role === 'admin');
+      item.innerHTML = buildPostHTML(key, post, isOwner);
+      list.appendChild(item);
+    });
 });
 
 loadStreets();
