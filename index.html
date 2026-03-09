@@ -124,6 +124,85 @@
       max-width: 100% !important;
     }
 
+    /* --- VIDEO CALL --- */
+    #video-call-overlay {
+      background: #0a0a0a;
+    }
+    #local-video {
+      transition: opacity 0.2s;
+    }
+    #local-video:hover {
+      opacity: 0.85;
+    }
+    #video-mute-btn, #video-cam-btn, #video-flip-btn {
+      transition: background 0.2s, transform 0.15s;
+    }
+    #video-mute-btn:active, #video-cam-btn:active, #video-flip-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* DM modal card sizing */
+    .dm-modal-card {
+      width: 380px;
+    }
+    @media (max-width: 480px) {
+      .dm-modal-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 92dvh !important;
+        border-radius: 24px 24px 0 0 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+      }
+      #dm-modal { align-items: flex-end !important; }
+    }
+
+    /* DM header icon buttons — fixed size, never overflow */
+    .dm-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+      transition: background 0.15s;
+    }
+    .dm-icon-btn:active { background: var(--border); }
+    /* ← and ✕ are text, slightly smaller font */
+    .dm-back-btn, .dm-x-btn { font-size: 0.9rem; font-weight: 700; }
+
+    /* Mobile video call pip and controls */
+    @media (max-width: 480px) {
+      /* Hide ✕ on mobile — back arrow is enough */
+      .dm-x-btn { display: none !important; }
+      /* Slightly smaller icon buttons on mobile */
+      .dm-icon-btn { width: 34px; height: 34px; font-size: 0.95rem; }
+      /* Video call local pip */
+      #local-video {
+        bottom: 110px !important;
+        right: 12px !important;
+        width: 90px !important;
+        height: 120px !important;
+      }
+      /* Video controls larger touch targets */
+      #video-mute-btn, #video-cam-btn, #video-flip-btn {
+        width: 52px !important;
+        height: 52px !important;
+      }
+    }
+
     /* --- BLOG / FEED --- */
     .feed-fab {
       position: absolute;
@@ -563,13 +642,14 @@
 
 <!-- DM Chat Modal -->
 <div class="modal-overlay" id="dm-modal" style="display:none;">
-  <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:380px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;" id="dm-chat-title">Saruna</h2>
-      <div style="display:flex;gap:8px;">
-        <button onclick="startCall()" class="btn-small" id="call-btn" title="Zvanīt">📞</button>
-        <button onclick="closeDMGoBack()" class="btn-small">←</button>
-        <button onclick="closeDM()" class="btn-small">X</button>
+  <div class="modal-card dm-modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0; gap:8px;">
+      <h2 style="margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1;" id="dm-chat-title">Saruna</h2>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        <button onclick="startCall()" class="dm-icon-btn" id="call-btn" title="Audio zvans">📞</button>
+        <button onclick="startVideoCall()" class="dm-icon-btn" id="video-call-btn" title="Video zvans">🎥</button>
+        <button onclick="closeDMGoBack()" class="dm-icon-btn dm-back-btn">←</button>
+        <button onclick="closeDM()" class="dm-icon-btn dm-x-btn">✕</button>
       </div>
     </div>
     <!-- Active call bar -->
@@ -578,7 +658,10 @@
         <span id="call-status-text" style="font-size:0.85rem; font-weight:600;">📞 Savienojas...</span>
         <span id="call-timer" style="font-size:0.8rem; opacity:0.5;"></span>
       </div>
-      <button onclick="hangUp()" style="background:#FF3B30; color:white; border:none; border-radius:10px; padding:6px 14px; font-weight:700; cursor:pointer;">Beigt</button>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button id="upgrade-to-video-btn" onclick="upgradeToVideo()" title="Pārslēgties uz video" style="display:none; background:var(--accent); color:white; border:none; border-radius:10px; padding:6px 10px; font-size:0.8rem; font-weight:700; cursor:pointer;">🎥</button>
+        <button onclick="hangUp()" style="background:#FF3B30; color:white; border:none; border-radius:10px; padding:6px 14px; font-weight:700; cursor:pointer;">Beigt</button>
+      </div>
     </div>
     <div id="dm-messages" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin; display:flex; flex-direction:column; gap:8px;"></div>
     <div style="margin-top:8px; flex-shrink:0;">
@@ -599,13 +682,44 @@
 </div>
 
 <!-- Incoming Call Overlay -->
-<div id="incoming-call-overlay" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:20px 28px; box-shadow:var(--shadow); backdrop-filter:blur(20px); text-align:center; min-width:260px;">
-  <div style="font-size:1.5rem; margin-bottom:6px;">📞</div>
+<div id="incoming-call-overlay" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:20px 28px; box-shadow:var(--shadow); backdrop-filter:blur(20px); text-align:center; min-width:280px; max-width:90vw; color:var(--text-main);">
+  <div style="font-size:1.5rem; margin-bottom:6px;" id="incoming-call-icon">📞</div>
   <div style="font-weight:700; margin-bottom:4px;" id="incoming-call-name">Kāds zvana...</div>
-  <div style="font-size:0.8rem; opacity:0.5; margin-bottom:16px;">Ienākošais zvans</div>
+  <div style="font-size:0.8rem; opacity:0.5; margin-bottom:16px;" id="incoming-call-type">Ienākošais zvans</div>
   <div style="display:flex; gap:12px; justify-content:center;">
-    <button onclick="acceptCall()" style="background:#34C759; color:white; border:none; border-radius:12px; padding:10px 24px; font-weight:700; cursor:pointer; font-size:1rem;">📞</button>
+    <button onclick="acceptCall()" style="background:#34C759; color:white; border:none; border-radius:12px; padding:10px 24px; font-weight:700; cursor:pointer; font-size:1rem;" id="accept-call-btn">📞</button>
     <button onclick="declineCall()" style="background:#FF3B30; color:white; border:none; border-radius:12px; padding:10px 24px; font-weight:700; cursor:pointer; font-size:1rem;">📵</button>
+  </div>
+</div>
+
+<!-- Video Call Overlay -->
+<div id="video-call-overlay" style="display:none; position:fixed; inset:0; z-index:8000; background:#000; flex-direction:column;">
+  <!-- Remote video (full screen) -->
+  <video id="remote-video" autoplay playsinline style="width:100%; height:100%; object-fit:contain; display:block; background:#000;"></video>
+  <!-- Local video (picture-in-picture) -->
+  <video id="local-video" autoplay playsinline muted style="position:absolute; bottom:100px; right:16px; width:110px; height:150px; object-fit:cover; border-radius:16px; border:2px solid rgba(255,255,255,0.3); box-shadow:0 4px 20px rgba(0,0,0,0.5); cursor:pointer; z-index:8100; background:#111;"></video>
+  <!-- Top bar -->
+  <div style="position:absolute; top:0; left:0; right:0; padding:env(safe-area-inset-top,16px) 20px 16px; background:linear-gradient(to bottom,rgba(0,0,0,0.7),transparent); display:flex; align-items:center; gap:12px; z-index:8200;">
+    <div style="flex:1;">
+      <div style="color:white; font-weight:700; font-size:1rem;" id="video-call-title">Video zvans</div>
+      <div style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:flex; align-items:center; gap:6px;">
+        <span id="video-call-status">Savienojas...</span>
+        <span id="video-call-timer" style="opacity:0.7;"></span>
+      </div>
+    </div>
+  </div>
+  <!-- Bottom controls -->
+  <div style="position:absolute; bottom:0; left:0; right:0; padding:20px 24px calc(env(safe-area-inset-bottom,0px) + 24px); background:linear-gradient(to top,rgba(0,0,0,0.8),transparent); display:flex; align-items:center; justify-content:center; gap:20px; z-index:8200;">
+    <button id="video-mute-btn" onclick="toggleVideoMic()" style="width:56px; height:56px; border-radius:50%; border:none; background:rgba(255,255,255,0.15); color:white; font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background 0.2s;">🎙️</button>
+    <button onclick="hangUp()" style="width:68px; height:68px; border-radius:50%; border:none; background:#FF3B30; color:white; font-size:1.6rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(255,59,48,0.5);">📵</button>
+    <button id="video-cam-btn" onclick="toggleVideoCamera()" style="width:56px; height:56px; border-radius:50%; border:none; background:rgba(255,255,255,0.15); color:white; font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background 0.2s;">📷</button>
+    <button id="video-flip-btn" onclick="flipCamera()" style="width:56px; height:56px; border-radius:50%; border:none; background:rgba(255,255,255,0.15); color:white; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px);">🔄</button>
+  </div>
+  <!-- Connecting overlay -->
+  <div id="video-connecting-overlay" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.7); z-index:8150;">
+    <div style="font-size:3rem; margin-bottom:16px;" id="video-connecting-icon">🎥</div>
+    <div style="color:white; font-weight:700; font-size:1.1rem; margin-bottom:8px;" id="video-connecting-name"></div>
+    <div style="color:rgba(255,255,255,0.6); font-size:0.85rem;" id="video-connecting-status">Savienojas...</div>
   </div>
 </div>
 
@@ -1831,13 +1945,18 @@ function closeDM() {
 
 function closeDMGoBack() { closeDM(); openInbox(); }
 
-// --- WEBRTC CALLING ---
+// --- WEBRTC CALLING (AUDIO + VIDEO) ---
 let localStream = null;
 let peerConnection = null;
 let callListener = null;
 let incomingCallConvId = null;
 let callTimerInterval = null;
 let callSeconds = 0;
+let isVideoCall = false;
+let incomingCallIsVideo = false;
+let videoMicMuted = false;
+let videoCamOff = false;
+let currentFacingMode = 'user';
 
 const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
@@ -1846,15 +1965,14 @@ function showCallBar(text) {
   bar.style.display = 'flex';
   document.getElementById('call-status-text').innerText = text;
 }
-
 function hideCallBar() {
   document.getElementById('call-bar').style.display = 'none';
   clearInterval(callTimerInterval);
   callTimerInterval = null;
   callSeconds = 0;
   document.getElementById('call-timer').innerText = '';
+  document.getElementById('upgrade-to-video-btn').style.display = 'none';
 }
-
 function startCallTimer() {
   callSeconds = 0;
   clearInterval(callTimerInterval);
@@ -1863,52 +1981,158 @@ function startCallTimer() {
     const m = Math.floor(callSeconds / 60).toString().padStart(2, '0');
     const s = (callSeconds % 60).toString().padStart(2, '0');
     document.getElementById('call-timer').innerText = `${m}:${s}`;
+    if (document.getElementById('video-call-timer'))
+      document.getElementById('video-call-timer').innerText = `${m}:${s}`;
   }, 1000);
 }
 
-async function startCall() {
-  if (!auth.currentUser || !currentDMConvId) { alert('Nav aktīvas sarunas.'); return; }
-  if (peerConnection) { alert('Jau notiek zvans.'); return; }
-  showCallBar('📞 Gaida mikrofonu...');
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-  } catch (e) {
-    hideCallBar();
-    alert('Nevar piekļūt mikrofonam: ' + e.message);
-    return;
-  }
-  showCallBar('📞 Savienojas...');
+function openVideoCallUI(name) {
+  const overlay = document.getElementById('video-call-overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('video-connecting-name').innerText = name;
+  document.getElementById('video-connecting-status').innerText = 'Savienojas...';
+  document.getElementById('video-connecting-overlay').style.display = 'flex';
+  document.getElementById('video-call-title').innerText = name;
+  document.getElementById('video-call-status').innerText = 'Savienojas...';
+}
+function closeVideoCallUI() {
+  document.getElementById('video-call-overlay').style.display = 'none';
+  const rv = document.getElementById('remote-video');
+  const lv = document.getElementById('local-video');
+  if (rv) rv.srcObject = null;
+  if (lv) lv.srcObject = null;
+}
+
+async function initPeerConnection(convId, isCallee) {
   peerConnection = new RTCPeerConnection(RTC_CONFIG);
   localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
-  peerConnection.ontrack = e => { document.getElementById('remote-audio').srcObject = e.streams[0]; };
+  const remoteStream = new MediaStream();
+  peerConnection.ontrack = e => {
+    e.streams[0].getTracks().forEach(t => {
+      if (!remoteStream.getTracks().includes(t)) remoteStream.addTrack(t);
+    });
+    if (isVideoCall) {
+      const rv = document.getElementById('remote-video');
+      if (rv.srcObject !== remoteStream) rv.srcObject = remoteStream;
+      if (remoteStream.getVideoTracks().length > 0) {
+        document.getElementById('video-connecting-overlay').style.display = 'none';
+        document.getElementById('video-call-status').innerText = 'Savienots';
+      }
+    } else {
+      const ra = document.getElementById('remote-audio');
+      if (ra.srcObject !== remoteStream) ra.srcObject = remoteStream;
+    }
+  };
   peerConnection.onicecandidate = e => {
-    if (e.candidate) database.ref(`calls/${currentDMConvId}/callerCandidates`).push(e.candidate.toJSON());
+    if (e.candidate) {
+      const ref = isCallee ? `calls/${convId}/calleeCandidates` : `calls/${convId}/callerCandidates`;
+      database.ref(ref).push(e.candidate.toJSON());
+    }
   };
   peerConnection.onconnectionstatechange = () => {
-    console.log('Call state:', peerConnection?.connectionState);
-    if (peerConnection?.connectionState === 'connected') {
-      showCallBar('📞 Savienots');
+    const state = peerConnection?.connectionState;
+    if (state === 'connected') {
+      if (isVideoCall) {
+        document.getElementById('video-connecting-overlay').style.display = 'none';
+        document.getElementById('video-call-status').innerText = 'Savienots';
+      } else {
+        showCallBar('📞 Savienots');
+      }
       startCallTimer();
     }
-    if (['disconnected','failed','closed'].includes(peerConnection?.connectionState)) hangUp();
+    if (['disconnected','failed','closed'].includes(state)) hangUp();
   };
+}
+
+// Show a non-blocking notice inside the DM modal (replaces alert for call errors)
+function showDMNotice(msg) {
+  let notice = document.getElementById('dm-notice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'dm-notice';
+    notice.style.cssText = 'background:#FF3B3022;border:1px solid #FF3B30;color:#FF3B30;border-radius:10px;padding:10px 14px;font-size:0.82rem;line-height:1.4;margin-top:8px;flex-shrink:0;';
+    const bar = document.getElementById('call-bar');
+    bar.parentNode.insertBefore(notice, bar.nextSibling);
+  }
+  notice.innerText = msg;
+  notice.style.display = 'block';
+  clearTimeout(notice._t);
+  notice._t = setTimeout(() => { notice.style.display = 'none'; }, 8000);
+}
+
+async function startCall() {
+  isVideoCall = false;
+  await _initiateCall(false);
+}
+
+async function startVideoCall() {
+  isVideoCall = true;
+  // Explicitly request camera permission here — must be called directly from user gesture
+  // so the browser shows the permission prompt before we do any async Firebase work
+  let hasCamera = false;
+  try {
+    const test = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    test.getTracks().forEach(t => t.stop()); // immediately release, we'll re-request properly below
+    hasCamera = true;
+  } catch (e) {
+    // No camera or denied — we'll proceed audio-only, handled inside _initiateCall
+  }
+  await _initiateCall(true);
+}
+
+async function _initiateCall(withVideo) {
+  if (!auth.currentUser || !currentDMConvId) { alert('Nav aktīvas sarunas.'); return; }
+  if (peerConnection) { alert('Jau notiek zvans.'); return; }
+  const myName = userProfile?.username || auth.currentUser.displayName || 'Kāds';
+  if (!withVideo) showCallBar('📞 Gaida mikrofonu...');
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: withVideo ? { facingMode: 'user' } : false });
+  } catch (e) {
+    if (withVideo) {
+      // Camera unavailable — fall back to audio-only; they can still see the other person
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        showDMNotice('Kamera nav pieejama — tu nesūtīsi video, bet redzēsi otru pusi.');
+      } catch (e2) {
+        const isPermission = e2.name === 'NotAllowedError' || e2.name === 'PermissionDeniedError';
+        showDMNotice(isPermission ? 'Mikrofons bloķēts. Atver pārlūka iestatījumus un atļauj piekļuvi šai lapai.' : 'Nevar piekļūt mikrofonam: ' + e2.message);
+        return;
+      }
+    } else {
+      hideCallBar();
+      const isPermission = e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError';
+      showDMNotice(isPermission ? 'Mikrofons bloķēts. Atver pārlūka iestatījumus un atļauj piekļuvi mikrofonam šai lapai.' : 'Nevar piekļūt mikrofonam: ' + e.message);
+      return;
+    }
+  }
+  if (withVideo) {
+    openVideoCallUI(currentDMOtherName || 'Zvans');
+    const lv = document.getElementById('local-video');
+    lv.srcObject = localStream.getVideoTracks().length ? localStream : null;
+    lv.style.display = localStream.getVideoTracks().length ? 'block' : 'none';
+  } else {
+    showCallBar('📞 Savienojas...');
+    // Show upgrade-to-video button for audio calls
+    document.getElementById('upgrade-to-video-btn').style.display = 'flex';
+  }
+  await initPeerConnection(currentDMConvId, false);
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  const myName = userProfile?.username || auth.currentUser.displayName || 'Kāds';
   await database.ref(`calls/${currentDMConvId}`).set({
     offer: { type: offer.type, sdp: offer.sdp },
     callerUID: auth.currentUser.uid,
     callerName: myName,
+    callType: withVideo ? 'video' : 'audio',
     status: 'calling'
   });
-  // Directly notify the other user
   await database.ref(`incoming_calls/${currentDMOtherUID}`).set({
     convId: currentDMConvId,
     callerUID: auth.currentUser.uid,
     callerName: myName,
+    callType: withVideo ? 'video' : 'audio',
     timestamp: Date.now()
   });
-  showCallBar('📞 Zvana...');
+  if (!withVideo) showCallBar('📞 Zvana...');
   database.ref(`calls/${currentDMConvId}/answer`).on('value', async snap => {
     if (snap.val() && peerConnection && !peerConnection.currentRemoteDescription) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(snap.val()));
@@ -1917,49 +2141,104 @@ async function startCall() {
   database.ref(`calls/${currentDMConvId}/calleeCandidates`).on('child_added', snap => {
     if (peerConnection) peerConnection.addIceCandidate(new RTCIceCandidate(snap.val())).catch(console.error);
   });
-  database.ref(`calls/${currentDMConvId}/status`).on('value', snap => {
-    if (snap.val() === 'declined') { alert('Zvans noraidīts.'); hangUp(); }
-    if (snap.val() === 'ended') hangUp();
+  const statusRef = database.ref(`calls/${currentDMConvId}/status`);
+  statusRef.on('value', snap => {
+    const s = snap.val();
+    if (s === 'active') {
+      // Call was answered — stop listening for declined, it can't be declined now
+      statusRef.off();
+      if (withVideo) {
+        document.getElementById('video-connecting-overlay').style.display = 'none';
+        document.getElementById('video-call-status').innerText = 'Savienots';
+      } else {
+        showCallBar('📞 Savienots');
+      }
+    }
+    if (s === 'declined') { showDMNotice('Zvans noraidīts.'); hangUp(); }
+    if (s === 'ended') hangUp();
   });
+  // Listen for video upgrade signal from callee
+  database.ref(`calls/${currentDMConvId}/videoUpgrade`).on('value', async snap => {
+    if (snap.val() === 'requested' && !isVideoCall && peerConnection) {
+      upgradeToVideo();
+    }
+  });
+}
+
+async function upgradeToVideo() {
+  if (isVideoCall) return;
+  if (!peerConnection) return;
+  try {
+    const videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+    // Stop old audio-only tracks
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    localStream = videoStream;
+    // Replace tracks in peer connection
+    const senders = peerConnection.getSenders();
+    const audioTrack = videoStream.getAudioTracks()[0];
+    const videoTrack = videoStream.getVideoTracks()[0];
+    const audioSender = senders.find(s => s.track && s.track.kind === 'audio');
+    if (audioSender && audioTrack) await audioSender.replaceTrack(audioTrack);
+    else if (audioTrack) peerConnection.addTrack(audioTrack, localStream);
+    if (videoTrack) peerConnection.addTrack(videoTrack, localStream);
+    isVideoCall = true;
+    // Signal to other side
+    await database.ref(`calls/${currentDMConvId}/videoUpgrade`).set('requested');
+    // Open video UI
+    openVideoCallUI(currentDMOtherName || 'Video zvans');
+    document.getElementById('local-video').srcObject = localStream;
+    document.getElementById('video-connecting-overlay').style.display = 'none';
+    document.getElementById('video-call-status').innerText = 'Savienots';
+    hideCallBar();
+  } catch(e) {
+    showDMNotice('Kamera nav pieejama: ' + e.message);
+  }
 }
 
 async function acceptCall() {
   document.getElementById('incoming-call-overlay').style.display = 'none';
   if (!incomingCallConvId) return;
+  // Remove the incoming_calls node immediately — this cancels the auto-decline timer
+  if (auth.currentUser) database.ref(`incoming_calls/${auth.currentUser.uid}`).remove();
   const callSnap = await database.ref(`calls/${incomingCallConvId}`).once('value');
   const callData = callSnap.val();
   if (!callData) return;
+  isVideoCall = incomingCallIsVideo;
+  // Receiver only needs audio — camera is optional, they still see the caller via ontrack
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
   } catch (e) {
-    alert('Nevar piekļūt mikrofonam.');
+    const isPermission = e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError';
+    showDMNotice(isPermission ? 'Mikrofons bloķēts. Atver pārlūka iestatījumus un atļauj piekļuvi šai lapai.' : 'Nevar piekļūt mikrofonam: ' + e.message);
     return;
   }
-  peerConnection = new RTCPeerConnection(RTC_CONFIG);
-  localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
-  peerConnection.ontrack = e => { document.getElementById('remote-audio').srcObject = e.streams[0]; };
-  peerConnection.onicecandidate = e => {
-    if (e.candidate) database.ref(`calls/${incomingCallConvId}/calleeCandidates`).push(e.candidate.toJSON());
-  };
-  peerConnection.onconnectionstatechange = () => {
-    if (peerConnection?.connectionState === 'connected') {
-      showCallBar('📞 Savienots');
-      startCallTimer();
-    }
-    if (['disconnected','failed','closed'].includes(peerConnection?.connectionState)) hangUp();
-  };
+  if (isVideoCall) {
+    openVideoCallUI(callData.callerName || 'Video zvans');
+    // No local camera on receiver side by default — hide pip
+    const lv = document.getElementById('local-video');
+    lv.srcObject = null;
+    lv.style.display = 'none';
+  } else {
+    showCallBar('📞 Savienots');
+    document.getElementById('upgrade-to-video-btn').style.display = 'flex';
+  }
+  await initPeerConnection(incomingCallConvId, true);
   await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
   await database.ref(`calls/${incomingCallConvId}/answer`).set({ type: answer.type, sdp: answer.sdp });
   await database.ref(`calls/${incomingCallConvId}/status`).set('active');
-  // Listen for caller ICE candidates
   database.ref(`calls/${incomingCallConvId}/callerCandidates`).on('child_added', snap => {
     if (peerConnection) peerConnection.addIceCandidate(new RTCIceCandidate(snap.val()));
   });
-  // Open the DM chat if not already open
+  // Listen for video upgrade request from caller
+  database.ref(`calls/${incomingCallConvId}/videoUpgrade`).on('value', async snap => {
+    if (snap.val() === 'requested' && !isVideoCall && peerConnection) {
+      upgradeToVideo();
+    }
+  });
   currentDMConvId = incomingCallConvId;
-  showCallBar('📞 Savienots');
+  if (!isVideoCall) showCallBar('📞 Savienots');
   if (document.getElementById('dm-modal').style.display === 'none') {
     document.getElementById('dm-modal').style.display = 'flex';
     document.getElementById('dm-chat-title').innerText = callData.callerName;
@@ -1968,18 +2247,25 @@ async function acceptCall() {
 
 function declineCall() {
   document.getElementById('incoming-call-overlay').style.display = 'none';
-  if (incomingCallConvId) {
+  if (!incomingCallConvId) return;
+  // Don't decline if the call is already active (we already accepted it)
+  database.ref(`calls/${incomingCallConvId}/status`).once('value', snap => {
+    if (snap.val() === 'active') { incomingCallConvId = null; return; }
     database.ref(`calls/${incomingCallConvId}/status`).set('declined');
     if (auth.currentUser) database.ref(`incoming_calls/${auth.currentUser.uid}`).remove();
     incomingCallConvId = null;
-  }
+  });
 }
 
 async function hangUp() {
   if (peerConnection) { peerConnection.close(); peerConnection = null; }
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
   document.getElementById('remote-audio').srcObject = null;
+  if (isVideoCall) closeVideoCallUI();
   hideCallBar();
+  isVideoCall = false;
+  videoMicMuted = false;
+  videoCamOff = false;
   if (currentDMConvId) {
     database.ref(`calls/${currentDMConvId}/status`).set('ended');
     database.ref(`calls/${currentDMConvId}`).off();
@@ -1990,18 +2276,59 @@ async function hangUp() {
   incomingCallConvId = null;
 }
 
+// Video call controls
+function toggleVideoMic() {
+  if (!localStream) return;
+  videoMicMuted = !videoMicMuted;
+  localStream.getAudioTracks().forEach(t => t.enabled = !videoMicMuted);
+  const btn = document.getElementById('video-mute-btn');
+  btn.style.background = videoMicMuted ? 'rgba(255,59,48,0.7)' : 'rgba(255,255,255,0.15)';
+  btn.innerText = videoMicMuted ? '🔇' : '🎙️';
+}
+function toggleVideoCamera() {
+  if (!localStream) return;
+  videoCamOff = !videoCamOff;
+  localStream.getVideoTracks().forEach(t => t.enabled = !videoCamOff);
+  const btn = document.getElementById('video-cam-btn');
+  btn.style.background = videoCamOff ? 'rgba(255,59,48,0.7)' : 'rgba(255,255,255,0.15)';
+  btn.innerText = videoCamOff ? '🚫' : '📷';
+}
+async function flipCamera() {
+  if (!localStream || !peerConnection) return;
+  currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+  const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true }).catch(() => null);
+  if (!newStream) return;
+  const newVideoTrack = newStream.getVideoTracks()[0];
+  const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+  if (sender && newVideoTrack) await sender.replaceTrack(newVideoTrack);
+  const lv = document.getElementById('local-video');
+  lv.srcObject = newStream;
+  localStream.getVideoTracks().forEach(t => t.stop());
+  localStream = newStream;
+}
+
 // Listen for incoming calls globally
 function watchIncomingCalls(uid) {
+  let autoDeclineTimer = null;
   database.ref(`incoming_calls/${uid}`).on('value', async snap => {
     const call = snap.val();
-    if (!call) return;
+    // If node was cleared (call accepted/ended), cancel any pending auto-decline
+    if (!call) { clearTimeout(autoDeclineTimer); autoDeclineTimer = null; return; }
     if (call.callerUID === uid) return;
     incomingCallConvId = call.convId;
+    incomingCallIsVideo = call.callType === 'video';
+    const icon = incomingCallIsVideo ? '🎥' : '📞';
+    const typeLabel = incomingCallIsVideo ? 'Ienākošais video zvans' : 'Ienākošais zvans';
+    document.getElementById('incoming-call-icon').innerText = icon;
     document.getElementById('incoming-call-name').innerText = `${call.callerName} zvana...`;
+    document.getElementById('incoming-call-type').innerText = typeLabel;
+    document.getElementById('accept-call-btn').innerText = incomingCallIsVideo ? '🎥' : '📞';
     document.getElementById('incoming-call-overlay').style.display = 'block';
-    // Auto decline after 30s
-    setTimeout(() => {
+    // Auto decline after 30s if not answered
+    clearTimeout(autoDeclineTimer);
+    autoDeclineTimer = setTimeout(() => {
       if (document.getElementById('incoming-call-overlay').style.display === 'block') declineCall();
+      autoDeclineTimer = null;
     }, 30000);
   });
 }
