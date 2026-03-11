@@ -1189,6 +1189,11 @@ function watchDMStatus(uid) {
 }
 
 async function signInWithGoogle() {
+  // If running in Android WebView, use native bridge instead
+  if (window.AndroidBridge) {
+    window.AndroidBridge.startGoogleSignIn();
+    return;
+  }
   try {
     const result = await auth.signInWithPopup(googleProvider);
     const user = result.user;
@@ -1206,6 +1211,39 @@ async function signInWithGoogle() {
   } catch (error) {
     alert("Google kļūda: " + error.message);
   }
+}
+
+// Called by Android native Google Sign-In bridge
+async function receiveNativeGoogleToken(uid, displayName, email, photoURL) {
+  try {
+    // Check if user exists in DB, if not create them
+    const snapshot = await database.ref('users/' + uid).once('value');
+    if (!snapshot.exists()) {
+      await database.ref('users/' + uid).set({
+        username: displayName,
+        dob: "",
+        role: 'user',
+        isPremium: false,
+        photoURL: photoURL || null
+      });
+      await database.ref('user_index/' + uid).set({
+        username: displayName,
+        isPremium: false,
+        bio: '',
+        role: 'user',
+        photoURL: photoURL || null
+      });
+    }
+    closeAuth();
+    // Reload to pick up auth state
+    location.reload();
+  } catch (e) {
+    alert("Kļūda: " + e.message);
+  }
+}
+
+function receiveNativeGoogleError(msg) {
+  alert("Google kļūda: " + msg);
 }
 
 // --- SETTINGS ---
