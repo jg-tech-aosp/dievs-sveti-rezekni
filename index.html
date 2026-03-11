@@ -1214,8 +1214,9 @@ async function signInWithGoogle() {
 }
 
 // Called by Android native Google Sign-In bridge
-async function receiveNativeGoogleToken(idToken, uid, displayName, email, photoURL) {
+async function receiveNativeGooglePayload(payload) {
   try {
+    const { idToken, uid, name: displayName, email, photo: photoURL } = payload;
     // Sign into Firebase Auth on the web side using the ID token
     const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
     await auth.signInWithCredential(credential);
