@@ -41,8 +41,8 @@
     #logged-in-ui { display: flex; gap: 8px; align-items: center; }
     .nav-icon-group { display: flex; gap: 8px; align-items: center; }
     .hamburger-wrap { display: none; }
-    .nav-dropdown { display: none; position: absolute; top: 54px; right: 0; left: auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 10px; box-shadow: var(--shadow); backdrop-filter: blur(20px); flex-direction: column; gap: 8px; z-index: 1002; min-width: 180px; }
-    .nav-dropdown.open { display: flex; }
+    .nav-dropdown { display: flex; position: absolute; top: 54px; right: 0; left: auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 10px; box-shadow: var(--shadow); backdrop-filter: blur(20px); flex-direction: column; gap: 8px; z-index: 1002; min-width: 180px; transform: scale(0.7); transform-origin: top right; opacity: 0; pointer-events: none; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease; }
+    .nav-dropdown.open { transform: scale(1); opacity: 1; pointer-events: all; }
     .nav-dropdown .auth-btn { width: 100%; text-align: left; box-shadow: none; }
     @media (max-width: 600px) {
       .nav-icon-group { display: none; }
@@ -66,10 +66,48 @@
     .control-btn { width: 44px; height: 44px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; backdrop-filter: blur(10px); }
 
     /* Modals */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity 0.22s ease; }
     .modal-card { background: var(--bg-panel); padding: 30px; border-radius: 24px; color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow); width: 320px; }
     .modal-card input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; }
     .label-hint { font-size: 0.75rem; opacity: 0.6; margin-top: 10px; display: block; }
+
+    /* --- ANIMATIONS --- */
+    /* Modal overlay fade */
+    .modal-overlay {
+      opacity: 0;
+      transition: opacity 0.22s ease;
+      pointer-events: none;
+    }
+    .modal-overlay.anim-open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    /* Modal card spring scale */
+    .modal-card {
+      transform: scale(0.88);
+      opacity: 0;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    }
+    .modal-overlay.anim-open .modal-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+    /* Feed panel expand from bottom-right */
+    .feed-panel {
+      transform: scale(0.7);
+      transform-origin: bottom right;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    }
+    .feed-panel.anim-open {
+      transform: scale(1);
+      opacity: 1;
+      pointer-events: all;
+    }
+    @media (max-width: 600px) {
+      .feed-panel { transform-origin: bottom center; }
+    }
 
     /* Google Button Styling */
     .google-btn { background: #fff; color: #757575; border: 1px solid #ddd; padding: 10px; border-radius: 12px; width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -93,12 +131,22 @@
       display: flex;
       flex-direction: column;
       max-height: min(85vh, 520px);
+      transform: translateY(30px) scale(0.95);
+      transform-origin: bottom left;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+    }
+    .control-panel.anim-open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: all;
     }
     @media (min-width: 601px) {
       .control-panel { bottom: 30px; left: 30px; width: 340px; border-radius: 24px; padding: 24px; }
     }
     @media (max-width: 600px) {
-      .control-panel { bottom: 20px; left: 5%; right: 5%; width: 90%; border-radius: 28px; padding: 20px; box-sizing: border-box; }
+      .control-panel { bottom: 20px; left: 5%; right: 5%; width: 90%; border-radius: 28px; padding: 20px; box-sizing: border-box; transform-origin: bottom center; }
     }
 
     .panel-content {
@@ -230,7 +278,7 @@
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       border-radius: 24px;
-      display: none;
+      display: flex;
       flex-direction: column;
       overflow: hidden;
       color: var(--text-main);
@@ -678,7 +726,7 @@
 </div>
 
 <!-- Followers/Following List Modal -->
-<div class="modal-overlay" id="follow-list-modal" style="display:none;">
+<div class="modal-overlay" id="follow-list-modal">
   <div class="modal-card" style="max-height:70vh; display:flex; flex-direction:column; overflow:hidden; width:320px;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;" id="follow-list-title">Sekotāji</h2>
@@ -689,7 +737,7 @@
 </div>
 
 <!-- User Search Modal -->
-<div class="modal-overlay" id="user-search-modal" style="display:none;">
+<div class="modal-overlay" id="user-search-modal">
   <div class="modal-card" style="max-height:70vh; display:flex; flex-direction:column; overflow:hidden; width:340px;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;">🔍 Meklēt lietotājus</h2>
@@ -703,7 +751,7 @@
 </div>
 
 <!-- Notifications Modal -->
-<div class="modal-overlay" id="notif-modal" style="display:none;">
+<div class="modal-overlay" id="notif-modal">
   <div class="modal-card" style="max-height:75vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;">🔔 Paziņojumi</h2>
@@ -719,7 +767,7 @@
 </div>
 
 <!-- Inbox Modal -->
-<div class="modal-overlay" id="inbox-modal" style="display:none;">
+<div class="modal-overlay" id="inbox-modal">
   <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;">📬 Iesūtne</h2>
@@ -732,7 +780,7 @@
 </div>
 
 <!-- DM Chat Modal -->
-<div class="modal-overlay" id="dm-modal" style="display:none;">
+<div class="modal-overlay" id="dm-modal">
   <div class="modal-card dm-modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0; gap:8px;">
       <div style="min-width:0; flex:1; overflow:hidden;">
@@ -776,7 +824,7 @@
 </div>
 
 <!-- Groups List Modal -->
-<div class="modal-overlay" id="groups-list-modal" style="display:none;">
+<div class="modal-overlay" id="groups-list-modal">
   <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;">👥 Grupas</h2>
@@ -792,7 +840,7 @@
 </div>
 
 <!-- Group Create Modal -->
-<div class="modal-overlay" id="group-create-modal" style="display:none;">
+<div class="modal-overlay" id="group-create-modal">
   <div class="modal-card group-modal-card" style="max-height:85vh; display:flex; flex-direction:column; overflow:hidden;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;">👥 Jauna grupa</h2>
@@ -812,7 +860,7 @@
 </div>
 
 <!-- Group Chat Modal -->
-<div class="modal-overlay" id="group-modal" style="display:none;">
+<div class="modal-overlay" id="group-modal">
   <div class="modal-card group-modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0; gap:8px;">
       <h2 style="margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1;" id="group-chat-title">Grupa</h2>
@@ -840,7 +888,7 @@
 </div>
 
 <!-- Group Info Modal -->
-<div class="modal-overlay" id="group-info-modal" style="display:none;">
+<div class="modal-overlay" id="group-info-modal">
   <div class="modal-card" style="width:340px; max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <h2 style="margin:0;" id="group-info-title">Grupas info</h2>
@@ -922,7 +970,7 @@
   </div>
 </div>
 
-<div class="control-panel" id="panel" style="display:none;">
+<div class="control-panel" id="panel">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-shrink:0;">
     <h2 style="margin:0;">Ielas Statuss</h2>
     <button onclick="closePanel()" style="background:none;border:none;color:var(--text-main);font-size:1.2rem;cursor:pointer;opacity:0.5;padding:0 4px;">✕</button>
@@ -1010,6 +1058,25 @@ let streetStates = {};
 let streetLayersById = {};
 let selectedLayer = null;
 let currentTheme = localStorage.getItem('theme') || 'light';
+
+
+// --- ANIMATION HELPERS ---
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('anim-open');
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('anim-open');
+}
+function toggleFeedPanel(open) {
+  const panel = document.getElementById('feed-panel');
+  if (!panel) return;
+  if (open) panel.classList.add('anim-open');
+  else panel.classList.remove('anim-open');
+}
 
 // --- AUTH STATE ---
 auth.onAuthStateChanged(async (user) => {
@@ -1144,7 +1211,7 @@ async function signInWithGoogle() {
 // --- SETTINGS ---
 function openSettings() {
   if (!userProfile) return;
-  document.getElementById('settings-modal').style.display = 'flex';
+  openModal('settings-modal');
   // Attach pfp listener here - guaranteed element exists
   const fi = document.getElementById('pfp-file-input');
   if (fi && !fi._pfpListened) {
@@ -1178,7 +1245,7 @@ function openSettings() {
     if (thumb) thumb.style.left = v ? '21px' : '3px';
   });
 }
-function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+function closeSettings() { closeModal('settings-modal'); }
 async function updateUserSettings() {
   const hideOnline = document.getElementById('settings-hide-online')?.checked || false;
   try {
@@ -1205,7 +1272,7 @@ async function deleteOwnAccount() {
 
 // --- ADMIN ---
 async function openAdminDashboard() {
-  document.getElementById('admin-dashboard').style.display = 'flex';
+  openModal('admin-dashboard');
   const snapshot = await database.ref('users').once('value');
   allUsers = snapshot.val() || {};
   renderUserList();
@@ -1355,9 +1422,9 @@ function uploadProfilePicture(event) {
   const reader = new FileReader();
   reader.onload = e => {
     // Hide settings modal, show crop modal on top
-    document.getElementById('settings-modal').style.display = 'none';
+    closeModal('settings-modal');
     const cropModal = document.getElementById('pfp-crop-modal');
-    cropModal.style.display = 'flex';
+    openModal('pfp-crop-modal');
     cropModal.style.zIndex = '9999';
     pfpInitCropListeners();
     const img = document.getElementById('pfp-crop-img');
@@ -1421,8 +1488,8 @@ function pfpInitCropListeners() {
 }
 
 function closePfpCrop() {
-  document.getElementById('pfp-crop-modal').style.display = 'none';
-  document.getElementById('settings-modal').style.display = 'flex';
+  closeModal('pfp-crop-modal');
+  openModal('settings-modal');
   pfpCropDragStart = null;
 }
 
@@ -1494,7 +1561,7 @@ let groupPhotoBase64 = null;
 
 function openGroupsList() {
   if (!auth.currentUser) return;
-  document.getElementById('groups-list-modal').style.display = 'flex';
+  openModal('groups-list-modal');
   const list = document.getElementById('groups-list');
   list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
   if (groupsListListener) {
@@ -1528,12 +1595,12 @@ function closeGroupsList() {
     database.ref(`user_groups/${auth.currentUser.uid}`).off('value', groupsListListener);
     groupsListListener = null;
   }
-  document.getElementById('groups-list-modal').style.display = 'none';
+  closeModal('groups-list-modal');
 }
 
 function openGroupCreate() {
-  document.getElementById('groups-list-modal').style.display = 'none';
-  document.getElementById('group-create-modal').style.display = 'flex';
+  closeModal('groups-list-modal');
+  openModal('group-create-modal');
   document.getElementById('group-name-input').value = '';
   document.getElementById('group-member-search').value = '';
   document.getElementById('group-member-search-results').innerHTML = '';
@@ -1542,8 +1609,8 @@ function openGroupCreate() {
 }
 
 function closeGroupCreate() {
-  document.getElementById('group-create-modal').style.display = 'none';
-  document.getElementById('groups-list-modal').style.display = 'flex';
+  closeModal('group-create-modal');
+  openModal('groups-list-modal');
 }
 
 async function handleGroupMemberSearch() {
@@ -1645,7 +1712,7 @@ function showGroupNotice(msg) {
 
 function openGroupChat(gid, name) {
   currentGroupId = gid;
-  document.getElementById('group-modal').style.display = 'flex';
+  openModal('group-modal');
   document.getElementById('group-chat-title').innerText = name || 'Grupa';
   document.getElementById('group-messages').innerHTML = '';
   if (groupMsgListener) {
@@ -1684,7 +1751,7 @@ function closeGroup() {
     database.ref(`group_messages/${currentGroupId}`).off('value', groupMsgListener);
     groupMsgListener = null;
   }
-  document.getElementById('group-modal').style.display = 'none';
+  closeModal('group-modal');
   currentGroupId = null;
 }
 
@@ -1754,7 +1821,7 @@ function clearGroupPhoto() {
 
 async function openGroupInfo() {
   if (!currentGroupId) return;
-  document.getElementById('group-info-modal').style.display = 'flex';
+  openModal('group-info-modal');
   const [groupSnap, membersSnap] = await Promise.all([
     database.ref(`groups/${currentGroupId}`).once('value'),
     database.ref(`group_members/${currentGroupId}`).once('value')
@@ -1815,7 +1882,7 @@ async function openGroupInfo() {
 }
 
 function closeGroupInfo() {
-  document.getElementById('group-info-modal').style.display = 'none';
+  closeModal('group-info-modal');
 }
 
 async function removeGroupMemberById(uid, username) {
@@ -1864,7 +1931,7 @@ function openAddMemberToGroup(currentMembers) {
   addMemberCurrentMembers = currentMembers;
   closeGroupInfo();
   // Reuse group create modal in "add member" mode
-  document.getElementById('group-create-modal').style.display = 'flex';
+  openModal('group-create-modal');
   document.getElementById('group-name-input').style.display = 'none';
   document.getElementById('group-create-modal').querySelector('h2').innerText = '➕ Pievienot dalībnieku';
   document.getElementById('group-member-search').value = '';
@@ -1896,7 +1963,7 @@ async function addMembersToGroup() {
   const btn = document.getElementById('group-create-modal').querySelector('.btn-apply');
   btn.innerText = 'Izveidot grupu';
   btn.onclick = createGroup;
-  document.getElementById('group-create-modal').style.display = 'none';
+  closeModal('group-create-modal');
   openGroupInfo();
 }
 
@@ -1932,7 +1999,7 @@ async function loadStreets() {
           const state = streetStates[id] || { cars:false, ped:false };
           document.getElementById("carsCheck").checked = state.cars;
           if (isPedestrianUnlocked) document.getElementById("pedCheck").checked = state.ped;
-          document.getElementById("panel").style.display = "flex";
+          document.getElementById("panel").classList.add("anim-open");
           // Show history section for admins
           const historySection = document.getElementById('street-history-section');
           if (userProfile?.role === 'admin') {
@@ -1978,7 +2045,7 @@ function findMyLocation() {
 }
 
 function closePanel() {
-  document.getElementById('panel').style.display = 'none';
+  document.getElementById('panel').classList.remove('anim-open');
   if (selectedLayer) {
     selectedLayer.setStyle({ weight: 6, opacity: 0.8 });
     selectedLayer = null;
@@ -2010,7 +2077,7 @@ function applyStatus() {
   };
   database.ref(`street_history/${id}`).push(historyEntry);
 
-  document.getElementById("panel").style.display = "none";
+  document.getElementById("panel").classList.remove("anim-open");
 }
 
 async function loadStreetHistory(streetId) {
@@ -2051,7 +2118,7 @@ paypal.Buttons({
   })
 }).render('#paypal-button-container');
 
-function openAuth(m) { document.getElementById('auth-modal').style.display='flex'; document.getElementById('modal-title').innerText=m==='login'?'Pieteikties':'Reģistrēties'; document.getElementById('reg-fields').style.display=m==='login'?'none':'block'; }
+function openAuth(m) { openModal('auth-modal'); document.getElementById('modal-title').innerText=m==='login'?'Pieteikties':'Reģistrēties'; document.getElementById('reg-fields').style.display=m==='login'?'none':'block'; }
 async function submitAuth() {
   const email = document.getElementById('email').value, pass = document.getElementById('password').value;
   const isReg = document.getElementById('reg-fields').style.display === 'block';
@@ -2065,8 +2132,8 @@ async function submitAuth() {
     closeAuth();
   } catch (e) { alert(e.message); }
 }
-function closeAuth() { document.getElementById('auth-modal').style.display='none'; }
-function closeAdminDashboard() { document.getElementById('admin-dashboard').style.display='none'; }
+function closeAuth() { closeModal('auth-modal'); }
+function closeAdminDashboard() { closeModal('admin-dashboard'); }
 function toggleTheme() { setTheme(currentTheme === 'light' ? 'dark' : 'light'); }
 
 function toggleNavDropdown() {
@@ -2096,8 +2163,7 @@ let isFeedOpen = false;
 
 function toggleFeed() {
   isFeedOpen = !isFeedOpen;
-  const panel = document.getElementById('feed-panel');
-  panel.style.display = isFeedOpen ? 'flex' : 'none';
+  toggleFeedPanel(isFeedOpen);
   if (isFeedOpen) updateComposeVisibility();
 }
 
@@ -2430,7 +2496,7 @@ let currentProfileUID = null;
 async function openProfile(uid, username) {
   currentProfileUID = uid;
   watchProfileStatus(uid);
-  document.getElementById('profile-modal').style.display = 'flex';
+  openModal('profile-modal');
   document.getElementById('profile-username').innerText = username;
   document.getElementById('profile-badge').innerText = '';
   document.getElementById('profile-bio').innerText = '';
@@ -2578,7 +2644,7 @@ async function toggleFollow() {
 async function openFollowList(type) {
   const uid = currentProfileUID;
   if (!uid) return;
-  document.getElementById('follow-list-modal').style.display = 'flex';
+  openModal('follow-list-modal');
   document.getElementById('follow-list-title').innerText = type === 'followers' ? 'Sekotāji' : 'Seko';
   const container = document.getElementById('follow-list-items');
   container.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
@@ -2603,17 +2669,17 @@ async function openFollowList(type) {
   }
 }
 
-function closeFollowList() { document.getElementById('follow-list-modal').style.display = 'none'; }
+function closeFollowList() { closeModal('follow-list-modal'); }
 
 // --- USER SEARCH ---
 function openUserSearch() {
-  document.getElementById('user-search-modal').style.display = 'flex';
+  openModal('user-search-modal');
   document.getElementById('user-search-input').value = '';
   document.getElementById('user-search-results').innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Raksti, lai meklētu...</div>';
   setTimeout(() => document.getElementById('user-search-input').focus(), 100);
 }
 
-function closeUserSearch() { document.getElementById('user-search-modal').style.display = 'none'; }
+function closeUserSearch() { closeModal('user-search-modal'); }
 
 async function handleUserSearch() {
   const query = document.getElementById('user-search-input').value.trim().toLowerCase();
@@ -2657,7 +2723,7 @@ function pushNotif(targetUID, notif) {
 
 function openNotifications() {
   if (!auth.currentUser) return;
-  document.getElementById('notif-modal').style.display = 'flex';
+  openModal('notif-modal');
   const list = document.getElementById('notif-list');
   list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
   if (notifListener) { database.ref(`notifications/${auth.currentUser.uid}`).off('value', notifListener); notifListener = null; }
@@ -2695,7 +2761,7 @@ function openNotifications() {
 
 function closeNotifications() {
   if (notifListener && auth.currentUser) { database.ref(`notifications/${auth.currentUser.uid}`).off('value', notifListener); notifListener = null; }
-  document.getElementById('notif-modal').style.display = 'none';
+  closeModal('notif-modal');
 }
 
 function markNotifRead(nid) {
@@ -2743,14 +2809,14 @@ function startDMFromProfile() {
   startDMWith(currentProfileUID, username);
 }
 
-function closeProfile() { document.getElementById('profile-modal').style.display = 'none'; if (profileStatusListener) { profileStatusListener(); profileStatusListener = null; } }
+function closeProfile() { closeModal('profile-modal'); if (profileStatusListener) { profileStatusListener(); profileStatusListener = null; } }
 
 async function startDMWith(uid, username) {
   currentDMOtherUID = uid;
   currentDMOtherName = username;
   currentDMConvId = getDMConvId(auth.currentUser.uid, uid);
-  document.getElementById('profile-modal').style.display = 'none';
-  document.getElementById('inbox-modal').style.display = 'none';
+  closeModal('profile-modal');
+  closeModal('inbox-modal');
   // Fetch their photo to store in inbox meta
   const idxSnap = await database.ref(`user_index/${uid}/photoURL`).once('value');
   const theirPhoto = idxSnap.val() || null;
@@ -2764,7 +2830,7 @@ async function startDMWith(uid, username) {
 }
 
 function openDMChat() {
-  document.getElementById('dm-modal').style.display = 'flex';
+  openModal('dm-modal');
   document.getElementById('dm-chat-title').innerText = currentDMOtherName;
   watchDMStatus(currentDMOtherUID);
   document.getElementById('dm-messages').innerHTML = '';
@@ -2858,7 +2924,7 @@ async function sendDM() {
 function closeDM() {
   if (dmStatusListener) { dmStatusListener(); dmStatusListener = null; }
   if (dmListener) { database.ref(`dms/${currentDMConvId}/messages`).off('value', dmListener); dmListener = null; }
-  document.getElementById('dm-modal').style.display = 'none';
+  closeModal('dm-modal');
 }
 
 function closeDMGoBack() { closeDM(); openInbox(); }
@@ -3158,7 +3224,7 @@ async function acceptCall() {
   currentDMConvId = incomingCallConvId;
   if (!isVideoCall) showCallBar('📞 Savienots');
   if (document.getElementById('dm-modal').style.display === 'none') {
-    document.getElementById('dm-modal').style.display = 'flex';
+    openModal('dm-modal');
     document.getElementById('dm-chat-title').innerText = callData.callerName;
   }
 }
@@ -3253,7 +3319,7 @@ function watchIncomingCalls(uid) {
 
 function openInbox() {
   if (!auth.currentUser) return;
-  document.getElementById('inbox-modal').style.display = 'flex';
+  openModal('inbox-modal');
   const list = document.getElementById('inbox-list');
   list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
   if (inboxListener) { database.ref(`user_convs/${auth.currentUser.uid}`).off('value', inboxListener); inboxListener = null; }
@@ -3291,7 +3357,7 @@ function openInbox() {
 
 function closeInbox() {
   if (inboxListener && auth.currentUser) { database.ref(`user_convs/${auth.currentUser.uid}`).off('value', inboxListener); inboxListener = null; }
-  document.getElementById('inbox-modal').style.display = 'none';
+  closeModal('inbox-modal');
 }
 
 function openLightbox(src) {
@@ -3350,7 +3416,7 @@ loadStreets();
 
 
 <!-- Profile Picture Crop Modal -->
-<div class="modal-overlay" id="pfp-crop-modal" style="display:none;z-index:9999;">
+<div class="modal-overlay" id="pfp-crop-modal" style="z-index:9999;">
   <div class="modal-card" style="width:340px;display:flex;flex-direction:column;align-items:center;gap:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
       <h2 style="margin:0;">✂️ Apgriezt bildi</h2>
