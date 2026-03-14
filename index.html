@@ -110,6 +110,27 @@
       .feed-panel { transform-origin: bottom center; }
     }
 
+
+    /* --- GAMES --- */
+    .game-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-align: center;
+    }
+    .game-card:hover { transform: scale(1.04); box-shadow: var(--shadow); }
+    .game-card .game-icon { font-size: 2.2rem; }
+    .game-card .game-name { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+    .game-card .game-desc { font-size: 0.75rem; opacity: 0.6; color: var(--text-main); }
+    #game-frame-modal .modal-card { padding: 0; width: 100%; height: 100%; border-radius: 0; max-width: 100%; }
+
     /* Google Button Styling */
     .google-btn { background: #fff; color: #757575; border: 1px solid #ddd; padding: 10px; border-radius: 12px; width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .google-btn:hover { background: #f1f1f1; }
@@ -603,6 +624,7 @@
       <button class="auth-btn" onclick="openNotifications()" style="position:relative;">🔔 <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;"></span></button>
       <button class="auth-btn" onclick="openUserSearch()">🔍</button>
       <button class="auth-btn" onclick="findMyLocation()">📍</button>
+      <button class="auth-btn" onclick="openGames()">🎮</button>
       <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard()">Admin ⚙️</button>
     </div>
     <!-- Hamburger - only on mobile -->
@@ -614,6 +636,7 @@
         <button class="auth-btn" onclick="openNotifications(); toggleNavDropdown()">🔔 Paziņojumi <span id="notif-badge-m" style="display:none;margin-left:4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;display:inline-block;vertical-align:middle;"></span></button>
         <button class="auth-btn" onclick="openUserSearch(); toggleNavDropdown()">🔍 Meklēt</button>
         <button class="auth-btn" onclick="findMyLocation(); toggleNavDropdown()">📍 Atrast mani</button>
+        <button class="auth-btn" onclick="openGames(); toggleNavDropdown()">🎮 Spēles</button>
         <button class="auth-btn" id="admin-panel-btn-m" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard(); toggleNavDropdown()">Admin ⚙️</button>
         <button class="auth-btn" onclick="toggleTheme(); toggleNavDropdown()" id="themeBtn-m">🌙 Tumšais režīms</button>
       </div>
@@ -1084,6 +1107,43 @@ function toggleFeedPanel(open) {
     panel.classList.remove('anim-open');
     panel.addEventListener('transitionend', () => { panel.style.display = 'none'; }, { once: true });
   }
+}
+
+
+// --- GAMES ---
+const GAMES = [
+  { id: 'matiisa', name: "Matiisa spēle", icon: '🖱️', desc: 'Klikšķu spēle', url: 'https://lietupircejs-pixel.github.io/Matiisa-speele/' },
+  // { id: 'breakout', name: 'Breakout', icon: '🧱', desc: 'Klasiskā spēle', url: '' },
+  // { id: '2048', name: '2048', icon: '🔢', desc: 'Skaitļu puzzle', url: '' },
+];
+
+function openGames() {
+  const list = document.getElementById('games-list');
+  list.innerHTML = GAMES.map(g => `
+    <div class="game-card" onclick="openGameFrame('${g.id}')">
+      <div class="game-icon">${g.icon}</div>
+      <div class="game-name">${g.name}</div>
+      <div class="game-desc">${g.desc}</div>
+    </div>
+  `).join('');
+  openModal('games-modal');
+}
+
+function closeGames() {
+  closeModal('games-modal');
+}
+
+function openGameFrame(gameId) {
+  const game = GAMES.find(g => g.id === gameId);
+  if (!game) return;
+  document.getElementById('game-frame-title').textContent = game.name;
+  document.getElementById('game-iframe').src = game.url;
+  openModal('game-frame-modal');
+}
+
+function closeGameFrame() {
+  document.getElementById('game-iframe').src = '';
+  closeModal('game-frame-modal');
 }
 
 // --- AUTH STATE ---
@@ -3513,5 +3573,30 @@ loadStreets();
     }
   });
 </script>
+
+<!-- GAMES MODAL -->
+<div id="games-modal" class="modal-overlay" style="z-index:3000;">
+  <div class="modal-card" style="width:100%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+    <div style="padding:20px 24px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+      <h2 style="margin:0;font-size:1.3rem;">🎮 Spēles</h2>
+      <button onclick="closeGames()" style="background:none;border:none;color:var(--text-main);font-size:1.2rem;cursor:pointer;opacity:0.5;">✕</button>
+    </div>
+    <div id="games-list" style="padding:16px;padding-bottom:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow-y:auto;">
+      <!-- game cards injected here -->
+    </div>
+  </div>
+</div>
+
+<!-- GAME FRAME MODAL -->
+<div id="game-frame-modal" class="modal-overlay" style="z-index:3001;">
+  <div style="width:100%;height:100%;display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--bg-panel);border-bottom:1px solid var(--border);">
+      <span id="game-frame-title" style="font-weight:700;font-size:1rem;color:var(--text-main);">Spēle</span>
+      <button onclick="closeGameFrame()" style="background:none;border:none;color:var(--text-main);font-size:1.3rem;cursor:pointer;opacity:0.6;">✕</button>
+    </div>
+    <iframe id="game-iframe" src="" style="flex:1;border:none;width:100%;background:#000;"></iframe>
+  </div>
+</div>
+
 </body>
 </html>
