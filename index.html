@@ -605,12 +605,78 @@
     .online-dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:#34C759; flex-shrink:0; box-shadow:0 0 0 2px var(--bg-panel); }
     .online-dot.offline { background:#8E8E93; }
     .online-status-text { font-size:0.75rem; opacity:0.55; }
+  
+    /* === SC UTILITY CLASSES === */
+    .sc-muted-pad { opacity:0.4;font-size:0.85rem;padding:10px; }
+    .sc-m0 { margin:0; }
+    .sc-row-between { display:flex;justify-content:space-between;align-items:center;flex-shrink:0; }
+    .sc-hidden { display:none; }
+    .sc-flex1 { flex:1; }
+    .sc-rel { position:relative; }
+    .sc-scroll-pane { overflow-y:auto;flex:1;margin-top:12px;scrollbar-width:thin; }
+    .sc-row-gap8 { display:flex;gap:8px; }
+    .sc-badge { display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center; }
+    .sc-bold { font-weight:700; }
+    .sc-hidden-danger { display:none;background:#FF3B30;color:white; }
+    .sc-badge-inline { display:none;margin-left:4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;display:inline-block;vertical-align:middle; }
+    .sc-row-between-nofs { display:flex;justify-content:space-between;align-items:center; }
+    .sc-text-sm-ptr { font-size:0.85rem;cursor:pointer; }
+    .sc-section-label { font-weight:700;font-size:0.8rem;opacity:0.5;margin-bottom:8px; }
+    .sc-row-gap8-align { display:flex;gap:8px;align-items:center; }
+    .sc-modal-col-360 { max-height:80vh;display:flex;flex-direction:column;overflow:hidden;width:360px; }
+    .sc-modal-col { max-height:80vh;display:flex;flex-direction:column;overflow:hidden; }
+    .sc-row-between-gap { display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:8px; }
+    .sc-scroll-col { overflow-y:auto;flex:1;margin-top:12px;scrollbar-width:thin;display:flex;flex-direction:column; }
+    .sc-scroll-col-gap { overflow-y:auto;flex:1;margin-top:12px;scrollbar-width:thin;display:flex;flex-direction:column;gap:8px; }
+    .sc-mt8-noshrink { margin-top:8px;flex-shrink:0; }
+    .sc-hidden-rel-mb6 { display:none;margin-bottom:6px;position:relative;width:fit-content; }
+    .sc-img-preview { max-height:80px;border-radius:10px;display:block; }
+    .sc-badge-btn { position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;line-height:18px;padding:0; }
+    .sc-icon-btn-text { cursor:pointer;font-size:1.1rem;display:flex;align-items:center; }
+    .sc-input-flex { flex:1;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-main);font-family:'Inter',sans-serif; }
+    .sc-mt14-noshrink { margin-top:14px;flex-shrink:0; }
+    .sc-bold-mb4 { font-weight:700;margin-bottom:4px; }
+    .sc-vcall-btn { width:56px;height:56px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:white;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:background 0.2s; }
+    .sc-ml10 { margin-left:10px; }
+    .sc-ghost-btn { background:none;border:none;color:var(--text-main);font-size:1rem;cursor:pointer;opacity:0.5; }
+    .sc-muted-pad-sm { opacity:0.4;font-size:0.8rem;padding:8px; }
+    .sc-sz32 { width:32px;height:32px; }
+    .sc-flex1-name { flex:1;font-size:0.88rem;font-weight:600; }
+    .sc-mr5 { margin-right:5px; }
+    .sc-muted-sm { opacity:0.4;font-size:0.8rem; }
+    .sc-mr6 { margin-right:6px; }
+    .sc-mr8-noshrink { margin-right:8px;flex-shrink:0; }
+    .sc-text-xs-muted { font-size:0.75rem;opacity:0.5; }
+  
+    /* === REPLY FEATURE === */
+    .reply-bar {
+      display:none; align-items:center; gap:8px; padding:8px 12px;
+      background:var(--input-bg); border-top:1px solid var(--border);
+      border-left:3px solid var(--accent); flex-shrink:0; font-size:0.8rem;
+    }
+    .reply-bar.active { display:flex; }
+    .reply-bar-text { flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:0.8rem; opacity:0.8; }
+    .reply-bar-name { font-weight:700; color:var(--accent); }
+    .reply-bar-cancel { background:none; border:none; color:var(--text-main); opacity:0.5; cursor:pointer; font-size:1rem; padding:0 4px; flex-shrink:0; }
+    .reply-quote {
+      border-left:3px solid var(--accent); padding:4px 8px; margin-bottom:5px;
+      border-radius:0 6px 6px 0; background:rgba(0,122,255,0.10);
+      font-size:0.75rem; opacity:0.85; max-width:100%;
+      overflow:hidden; word-break:break-word;
+    }
+    .reply-quote-name { font-weight:700; opacity:0.9; margin-right:4px; }
+    .reply-btn {
+      background:none; border:none; color:var(--text-main); opacity:0.4;
+      cursor:pointer; font-size:0.75rem; padding:0 4px; border-radius:4px;
+      transition:opacity 0.15s; vertical-align:middle; line-height:1;
+    }
+    .reply-btn:hover { opacity:1; background:var(--input-bg); }
   </style>
 </head>
 <body>
 
 <div class="auth-nav" id="auth-nav">
-  <div id="logged-out-ui" style="display:flex; gap:8px;">
+  <div class="sc-row-gap8" id="logged-out-ui">
     <button class="auth-btn" onclick="openAuth('login')">Pieteikties</button>
     <button class="auth-btn" onclick="openAuth('register')">Reģistrēties</button>
   </div>
@@ -619,25 +685,25 @@
     <button class="auth-btn" onclick="handleLogout()">Iziet</button>
     <!-- Icon buttons - hidden on mobile -->
     <div class="nav-icon-group">
-      <button class="auth-btn" id="dm-inbox-btn" onclick="openInbox()" style="position:relative;">📬 <span id="dm-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;">!</span></button>
-      <button class="auth-btn" onclick="openGroupsList()" style="position:relative;">👥 <span id="group-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;">!</span></button>
-      <button class="auth-btn" onclick="openNotifications()" style="position:relative;">🔔 <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;"></span></button>
+      <button class="auth-btn sc-rel" id="dm-inbox-btn" onclick="openInbox()">📬 <span class="sc-badge" id="dm-unread-badge">!</span></button>
+      <button class="auth-btn sc-rel" onclick="openGroupsList()">👥 <span class="sc-badge" id="group-unread-badge">!</span></button>
+      <button class="auth-btn sc-rel" onclick="openNotifications()">🔔 <span class="sc-badge" id="notif-badge"></span></button>
       <button class="auth-btn" onclick="openUserSearch()">🔍</button>
       <button class="auth-btn" onclick="findMyLocation()">📍</button>
       <button class="auth-btn" onclick="openGames()">🎮</button>
-      <button class="auth-btn" id="admin-panel-btn" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard()">Admin ⚙️</button>
+      <button class="auth-btn sc-hidden-danger" id="admin-panel-btn" onclick="openAdminDashboard()">Admin ⚙️</button>
     </div>
     <!-- Hamburger - only on mobile -->
-    <div style="position:relative;" class="hamburger-wrap">
+    <div class="hamburger-wrap sc-rel">
       <button class="auth-btn" onclick="toggleNavDropdown()">☰</button>
       <div class="nav-dropdown" id="nav-dropdown">
-        <button class="auth-btn" onclick="openInbox(); toggleNavDropdown()">📬 Iesūtne <span id="dm-unread-badge-m" style="display:none;margin-left:4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;display:inline-block;vertical-align:middle;"></span></button>
+        <button class="auth-btn" onclick="openInbox(); toggleNavDropdown()">📬 Iesūtne <span class="sc-badge-inline" id="dm-unread-badge-m"></span></button>
         <button class="auth-btn" onclick="openGroupsList(); toggleNavDropdown()">👥 Grupas</button>
-        <button class="auth-btn" onclick="openNotifications(); toggleNavDropdown()">🔔 Paziņojumi <span id="notif-badge-m" style="display:none;margin-left:4px;background:#FF3B30;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;line-height:16px;text-align:center;display:inline-block;vertical-align:middle;"></span></button>
+        <button class="auth-btn" onclick="openNotifications(); toggleNavDropdown()">🔔 Paziņojumi <span class="sc-badge-inline" id="notif-badge-m"></span></button>
         <button class="auth-btn" onclick="openUserSearch(); toggleNavDropdown()">🔍 Meklēt</button>
         <button class="auth-btn" onclick="findMyLocation(); toggleNavDropdown()">📍 Atrast mani</button>
         <button class="auth-btn" onclick="openGames(); toggleNavDropdown()">🎮 Spēles</button>
-        <button class="auth-btn" id="admin-panel-btn-m" style="display:none; background:#FF3B30; color:white;" onclick="openAdminDashboard(); toggleNavDropdown()">Admin ⚙️</button>
+        <button class="auth-btn sc-hidden-danger" id="admin-panel-btn-m" onclick="openAdminDashboard(); toggleNavDropdown()">Admin ⚙️</button>
         <button class="auth-btn" onclick="toggleTheme(); toggleNavDropdown()" id="themeBtn-m">🌙 Tumšais režīms</button>
       </div>
     </div>
@@ -660,7 +726,7 @@
     <h2 id="modal-title">Pieteikties</h2>
     <input type="email" id="email" placeholder="E-pasts">
     <input type="password" id="password" placeholder="Parole">
-    <div id="reg-fields" style="display:none;">
+    <div class="sc-hidden" id="reg-fields">
       <input type="text" id="username" placeholder="Lietotājvārds">
       <input type="date" id="dob" title="Dzimšanas datums">
     </div>
@@ -677,19 +743,19 @@
 
 <div class="modal-overlay" id="settings-modal">
   <div class="modal-card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;">Iestatījumi</h2>
+    <div class="sc-row-between-nofs">
+      <h2 class="sc-m0">Iestatījumi</h2>
       <button onclick="closeSettings()" class="btn-small">X</button>
     </div>
     <div class="pfp-upload-wrap">
       <div id="settings-avatar" class="user-avatar-lg">?</div>
-      <div style="flex:1;">
+      <div class="sc-flex1">
         <div style="font-weight:700;font-size:0.88rem;">Profila bilde</div>
         <div style="font-size:0.75rem;opacity:0.5;margin-top:2px;" id="pfp-upload-status">Nav augšupielādēts</div>
       </div>
       <label class="pfp-upload-btn" id="pfp-upload-btn" style="cursor:pointer;">
         Mainīt
-        <input type="file" id="pfp-file-input" accept="image/*" style="display:none;">
+        <input class="sc-hidden" type="file" id="pfp-file-input" accept="image/*">
       </label>
     </div>
     <span class="label-hint">Lietotājvārds</span>
@@ -720,8 +786,8 @@
 <!-- Profile Modal -->
 <div class="modal-overlay" id="profile-modal">
   <div class="modal-card" style="max-height:85vh; max-width:94vw; width:360px; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;" id="profile-username">Profils</h2>
+    <div class="sc-row-between">
+      <h2 class="sc-m0" id="profile-username">Profils</h2>
       <button onclick="closeProfile()" class="btn-small">X</button>
     </div>
     <div style="overflow-y:auto; flex:1; scrollbar-width:thin; padding-right:2px;">
@@ -735,15 +801,15 @@
       <div id="profile-bio" style="font-size:0.85rem; opacity:0.7; margin-bottom:10px; padding:10px; background:var(--input-bg); border-radius:12px; display:none;"></div>
       <!-- Follow stats -->
       <div style="display:flex; gap:16px; margin-bottom:12px;">
-        <span id="profile-followers-count" style="font-size:0.85rem; cursor:pointer;" onclick="openFollowList('followers')"><strong id="profile-followers-num">0</strong> sekotāji</span>
-        <span id="profile-following-count" style="font-size:0.85rem; cursor:pointer;" onclick="openFollowList('following')"><strong id="profile-following-num">0</strong> seko</span>
+        <span class="sc-text-sm-ptr" id="profile-followers-count" onclick="openFollowList('followers')"><strong id="profile-followers-num">0</strong> sekotāji</span>
+        <span class="sc-text-sm-ptr" id="profile-following-count" onclick="openFollowList('following')"><strong id="profile-following-num">0</strong> seko</span>
       </div>
       <div id="profile-action-btns" style="display:flex; gap:8px; margin-bottom:12px;">
         <button id="profile-follow-btn" class="btn-apply" style="display:none; margin:0; padding:10px; flex:1;" onclick="toggleFollow()">Sekot</button>
         <button id="profile-dm-btn-wrap" class="btn-apply" style="display:none; margin:0; padding:10px; flex:1; background:var(--input-bg); color:var(--text-main); border:1px solid var(--border);" onclick="startDMFromProfile()">💬 Sūtīt ziņu</button>
         <button id="profile-block-btn" class="btn-apply" style="display:none; margin:0; padding:10px 12px; background:var(--input-bg); color:#FF3B30; border:1px solid #FF3B30; flex-shrink:0;" onclick="toggleBlock()">🚫</button>
       </div>
-      <div style="font-weight:700; font-size:0.8rem; opacity:0.5; margin-bottom:8px;">ZIŅAS</div>
+      <div class="sc-section-label">ZIŅAS</div>
       <div id="profile-posts"></div>
     </div>
   </div>
@@ -752,24 +818,24 @@
 <!-- Followers/Following List Modal -->
 <div class="modal-overlay" id="follow-list-modal">
   <div class="modal-card" style="max-height:70vh; display:flex; flex-direction:column; overflow:hidden; width:320px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;" id="follow-list-title">Sekotāji</h2>
+    <div class="sc-row-between">
+      <h2 class="sc-m0" id="follow-list-title">Sekotāji</h2>
       <button onclick="closeFollowList()" class="btn-small">X</button>
     </div>
-    <div id="follow-list-items" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin;"></div>
+    <div class="sc-scroll-pane" id="follow-list-items"></div>
   </div>
 </div>
 
 <!-- User Search Modal -->
 <div class="modal-overlay" id="user-search-modal">
   <div class="modal-card" style="max-height:70vh; display:flex; flex-direction:column; overflow:hidden; width:340px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;">🔍 Meklēt lietotājus</h2>
+    <div class="sc-row-between">
+      <h2 class="sc-m0">🔍 Meklēt lietotājus</h2>
       <button onclick="closeUserSearch()" class="btn-small">X</button>
     </div>
     <input type="text" id="user-search-input" placeholder="Ievadi lietotājvārdu..." oninput="handleUserSearch()" style="margin-top:12px; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-main); font-family:'Inter',sans-serif; flex-shrink:0;">
     <div id="user-search-results" style="overflow-y:auto; flex:1; margin-top:10px; scrollbar-width:thin;">
-      <div style="opacity:0.4;font-size:0.85rem;padding:10px;">Raksti, lai meklētu...</div>
+      <div class="sc-muted-pad">Raksti, lai meklētu...</div>
     </div>
   </div>
 </div>
@@ -777,36 +843,36 @@
 <!-- Notifications Modal -->
 <div class="modal-overlay" id="notif-modal">
   <div class="modal-card" style="max-height:75vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;">🔔 Paziņojumi</h2>
-      <div style="display:flex; gap:8px; align-items:center;">
+    <div class="sc-row-between">
+      <h2 class="sc-m0">🔔 Paziņojumi</h2>
+      <div class="sc-row-gap8-align">
         <button onclick="markAllNotifsRead()" style="background:none;border:none;color:var(--accent);font-size:0.8rem;cursor:pointer;">Atzīmēt visus</button>
         <button onclick="closeNotifications()" class="btn-small">X</button>
       </div>
     </div>
-    <div id="notif-list" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin;">
-      <div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav paziņojumu.</div>
+    <div class="sc-scroll-pane" id="notif-list">
+      <div class="sc-muted-pad">Nav paziņojumu.</div>
     </div>
   </div>
 </div>
 
 <!-- Inbox Modal -->
 <div class="modal-overlay" id="inbox-modal">
-  <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;">📬 Iesūtne</h2>
+  <div class="modal-card sc-modal-col-360">
+    <div class="sc-row-between">
+      <h2 class="sc-m0">📬 Iesūtne</h2>
       <button onclick="closeInbox()" class="btn-small">X</button>
     </div>
-    <div id="inbox-list" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin;">
-      <div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav sarunu.</div>
+    <div class="sc-scroll-pane" id="inbox-list">
+      <div class="sc-muted-pad">Nav sarunu.</div>
     </div>
   </div>
 </div>
 
 <!-- DM Chat Modal -->
 <div class="modal-overlay" id="dm-modal">
-  <div class="modal-card dm-modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0; gap:8px;">
+  <div class="modal-card dm-modal-card sc-modal-col">
+    <div class="sc-row-between-gap">
       <div style="min-width:0; flex:1; overflow:hidden;">
         <h2 style="margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="dm-chat-title">Saruna</h2>
         <div id="dm-online-status" style="display:flex; align-items:center; gap:5px; margin-top:2px;"></div>
@@ -829,18 +895,25 @@
         <button onclick="hangUp()" style="background:#FF3B30; color:white; border:none; border-radius:10px; padding:6px 14px; font-weight:700; cursor:pointer;">Beigt</button>
       </div>
     </div>
-    <div id="dm-messages" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin; display:flex; flex-direction:column; gap:8px;"></div>
-    <div style="margin-top:8px; flex-shrink:0;">
-      <div id="dm-photo-preview-wrap" style="display:none; margin-bottom:6px; position:relative; width:fit-content;">
-        <img id="dm-photo-preview" style="max-height:80px; border-radius:10px; display:block;">
-        <button onclick="clearDMPhoto()" style="position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;line-height:18px;padding:0;">✕</button>
+    <div class="sc-scroll-col-gap" id="dm-messages"></div>
+    <div class="reply-bar" id="dm-reply-bar">
+      <div class="reply-bar-text">
+        <span class="reply-bar-name" id="dm-reply-name"></span>
+        <span id="dm-reply-preview"></span>
       </div>
-      <div style="display:flex; gap:8px;">
-        <label class="feed-photo-label" title="Pievienot foto" style="cursor:pointer; font-size:1.1rem; display:flex; align-items:center;">
+      <button class="reply-bar-cancel" onclick="clearDMReply()">✕</button>
+    </div>
+    <div class="sc-mt8-noshrink">
+      <div class="sc-hidden-rel-mb6" id="dm-photo-preview-wrap">
+        <img class="sc-img-preview" id="dm-photo-preview">
+        <button class="sc-badge-btn" onclick="clearDMPhoto()">✕</button>
+      </div>
+      <div class="sc-row-gap8">
+        <label class="feed-photo-label sc-icon-btn-text" title="Pievienot foto">
           📷
-          <input type="file" id="dm-photo-input" accept="image/*" style="display:none;" onchange="handleDMPhotoSelect(event)">
+          <input class="sc-hidden" type="file" id="dm-photo-input" accept="image/*" onchange="handleDMPhotoSelect(event)">
         </label>
-        <input type="text" id="dm-input" placeholder="Raksti ziņu..." style="flex:1; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-main); font-family:'Inter',sans-serif;" onkeydown="if(event.key==='Enter') sendDM()">
+        <input class="sc-input-flex" type="text" id="dm-input" placeholder="Raksti ziņu..." onkeydown="if(event.key==='Enter') sendDM()">
         <button class="feed-post-btn" onclick="sendDM()">→</button>
       </div>
     </div>
@@ -849,16 +922,16 @@
 
 <!-- Groups List Modal -->
 <div class="modal-overlay" id="groups-list-modal">
-  <div class="modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden; width:360px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;">👥 Grupas</h2>
-      <div style="display:flex; gap:8px; align-items:center;">
+  <div class="modal-card sc-modal-col-360">
+    <div class="sc-row-between">
+      <h2 class="sc-m0">👥 Grupas</h2>
+      <div class="sc-row-gap8-align">
         <button onclick="openGroupCreate()" style="background:var(--accent);color:white;border:none;border-radius:10px;padding:6px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;">+ Jauna</button>
         <button onclick="closeGroupsList()" class="btn-small">X</button>
       </div>
     </div>
-    <div id="groups-list" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin;">
-      <div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav grupu.</div>
+    <div class="sc-scroll-pane" id="groups-list">
+      <div class="sc-muted-pad">Nav grupu.</div>
     </div>
   </div>
 </div>
@@ -866,11 +939,11 @@
 <!-- Group Create Modal -->
 <div class="modal-overlay" id="group-create-modal">
   <div class="modal-card group-modal-card" style="max-height:85vh; display:flex; flex-direction:column; overflow:hidden;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;">👥 Jauna grupa</h2>
+    <div class="sc-row-between">
+      <h2 class="sc-m0">👥 Jauna grupa</h2>
       <button onclick="closeGroupCreate()" class="btn-small">X</button>
     </div>
-    <div style="margin-top:14px; flex-shrink:0;">
+    <div class="sc-mt14-noshrink">
       <input type="text" id="group-name-input" maxlength="40" placeholder="Grupas nosaukums..." style="width:100%; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-main); font-family:'Inter',sans-serif; box-sizing:border-box;">
     </div>
     <div style="margin-top:12px; flex-shrink:0;">
@@ -879,14 +952,14 @@
       <div id="group-member-search-results" style="margin-top:6px; max-height:140px; overflow-y:auto;"></div>
     </div>
     <div id="group-selected-members" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; flex-shrink:0; min-height:28px;"></div>
-    <button class="btn-apply" onclick="createGroup()" style="margin-top:14px; flex-shrink:0;">Izveidot grupu</button>
+    <button class="btn-apply sc-mt14-noshrink" onclick="createGroup()">Izveidot grupu</button>
   </div>
 </div>
 
 <!-- Group Chat Modal -->
 <div class="modal-overlay" id="group-modal">
-  <div class="modal-card group-modal-card" style="max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0; gap:8px;">
+  <div class="modal-card group-modal-card sc-modal-col">
+    <div class="sc-row-between-gap">
       <h2 style="margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1;" id="group-chat-title">Grupa</h2>
       <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
         <button onclick="openGroupInfo()" class="dm-icon-btn" title="Grupas info">ℹ️</button>
@@ -894,17 +967,24 @@
         <button onclick="closeGroup()" class="dm-icon-btn dm-x-btn">✕</button>
       </div>
     </div>
-    <div id="group-messages" style="overflow-y:auto; flex:1; margin-top:12px; scrollbar-width:thin; display:flex; flex-direction:column; gap:8px;"></div>
-    <div style="margin-top:8px; flex-shrink:0;">
-      <div id="group-photo-preview-wrap" style="display:none; margin-bottom:6px; position:relative; width:fit-content;">
-        <img id="group-photo-preview" style="max-height:80px; border-radius:10px; display:block;">
-        <button onclick="clearGroupPhoto()" style="position:absolute;top:-4px;right:-4px;background:#FF3B30;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;line-height:18px;padding:0;">✕</button>
+    <div class="sc-scroll-col-gap" id="group-messages"></div>
+    <div class="reply-bar" id="grp-reply-bar">
+      <div class="reply-bar-text">
+        <span class="reply-bar-name" id="grp-reply-name"></span>
+        <span id="grp-reply-preview"></span>
       </div>
-      <div style="display:flex; gap:8px;">
-        <label class="feed-photo-label" title="Pievienot foto" style="cursor:pointer; font-size:1.1rem; display:flex; align-items:center;">
-          📷<input type="file" id="group-photo-input" accept="image/*" style="display:none;" onchange="handleGroupPhotoSelect(event)">
+      <button class="reply-bar-cancel" onclick="clearGrpReply()">✕</button>
+    </div>
+    <div class="sc-mt8-noshrink">
+      <div class="sc-hidden-rel-mb6" id="group-photo-preview-wrap">
+        <img class="sc-img-preview" id="group-photo-preview">
+        <button class="sc-badge-btn" onclick="clearGroupPhoto()">✕</button>
+      </div>
+      <div class="sc-row-gap8">
+        <label class="feed-photo-label sc-icon-btn-text" title="Pievienot foto">
+          📷<input class="sc-hidden" type="file" id="group-photo-input" accept="image/*" onchange="handleGroupPhotoSelect(event)">
         </label>
-        <input type="text" id="group-input" placeholder="Raksti ziņu..." style="flex:1; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-main); font-family:'Inter',sans-serif;" onkeydown="if(event.key==='Enter') sendGroupMessage()">
+        <input class="sc-input-flex" type="text" id="group-input" placeholder="Raksti ziņu..." onkeydown="if(event.key==='Enter') sendGroupMessage()">
         <button class="feed-post-btn" onclick="sendGroupMessage()">→</button>
       </div>
     </div>
@@ -914,8 +994,8 @@
 <!-- Group Info Modal -->
 <div class="modal-overlay" id="group-info-modal">
   <div class="modal-card" style="width:340px; max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-      <h2 style="margin:0;" id="group-info-title">Grupas info</h2>
+    <div class="sc-row-between">
+      <h2 class="sc-m0" id="group-info-title">Grupas info</h2>
       <button onclick="closeGroupInfo()" class="btn-small">X</button>
     </div>
     <div style="font-size:0.78rem; opacity:0.5; margin-top:4px; flex-shrink:0;" id="group-info-meta"></div>
@@ -928,7 +1008,7 @@
 <!-- Incoming Call Overlay -->
 <div id="incoming-call-overlay" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:20px 28px; box-shadow:var(--shadow); backdrop-filter:blur(20px); text-align:center; min-width:280px; max-width:90vw; color:var(--text-main);">
   <div style="font-size:1.5rem; margin-bottom:6px;" id="incoming-call-icon">📞</div>
-  <div style="font-weight:700; margin-bottom:4px;" id="incoming-call-name">Kāds zvana...</div>
+  <div class="sc-bold-mb4" id="incoming-call-name">Kāds zvana...</div>
   <div style="font-size:0.8rem; opacity:0.5; margin-bottom:16px;" id="incoming-call-type">Ienākošais zvans</div>
   <div style="display:flex; gap:12px; justify-content:center;">
     <button onclick="acceptCall()" style="background:#34C759; color:white; border:none; border-radius:12px; padding:10px 24px; font-weight:700; cursor:pointer; font-size:1rem;" id="accept-call-btn">📞</button>
@@ -944,7 +1024,7 @@
   <video id="local-video" autoplay playsinline muted style="position:absolute; bottom:100px; right:16px; width:110px; height:150px; object-fit:cover; border-radius:16px; border:2px solid rgba(255,255,255,0.3); box-shadow:0 4px 20px rgba(0,0,0,0.5); cursor:pointer; z-index:8100; background:#111;"></video>
   <!-- Top bar -->
   <div style="position:absolute; top:0; left:0; right:0; padding:env(safe-area-inset-top,16px) 20px 16px; background:linear-gradient(to bottom,rgba(0,0,0,0.7),transparent); display:flex; align-items:center; gap:12px; z-index:8200;">
-    <div style="flex:1;">
+    <div class="sc-flex1">
       <div style="color:white; font-weight:700; font-size:1rem;" id="video-call-title">Video zvans</div>
       <div style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:flex; align-items:center; gap:6px;">
         <span id="video-call-status">Savienojas...</span>
@@ -954,9 +1034,9 @@
   </div>
   <!-- Bottom controls -->
   <div style="position:absolute; bottom:0; left:0; right:0; padding:20px 24px calc(env(safe-area-inset-bottom,0px) + 24px); background:linear-gradient(to top,rgba(0,0,0,0.8),transparent); display:flex; align-items:center; justify-content:center; gap:20px; z-index:8200;">
-    <button id="video-mute-btn" onclick="toggleVideoMic()" style="width:56px; height:56px; border-radius:50%; border:none; background:rgba(255,255,255,0.15); color:white; font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background 0.2s;">🎙️</button>
+    <button class="sc-vcall-btn" id="video-mute-btn" onclick="toggleVideoMic()">🎙️</button>
     <button onclick="hangUp()" style="width:68px; height:68px; border-radius:50%; border:none; background:#FF3B30; color:white; font-size:1.6rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(255,59,48,0.5);">📵</button>
-    <button id="video-cam-btn" onclick="toggleVideoCamera()" style="width:56px; height:56px; border-radius:50%; border:none; background:rgba(255,255,255,0.15); color:white; font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background 0.2s;">📷</button>
+    <button class="sc-vcall-btn" id="video-cam-btn" onclick="toggleVideoCamera()">📷</button>
     <button id="video-flip-btn" onclick="flipCamera()" style="width:56px; height:56px; border-radius:50%; border:none; background:rgba(255,255,255,0.15); color:white; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px);">🔄</button>
   </div>
   <!-- Connecting overlay -->
@@ -971,8 +1051,8 @@
 
 <div id="admin-dashboard" class="modal-overlay">
   <div class="modal-card admin-card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;">Lietotāju Kontrole</h2>
+    <div class="sc-row-between-nofs">
+      <h2 class="sc-m0">Lietotāju Kontrole</h2>
       <button onclick="closeAdminDashboard()" class="auth-btn">X</button>
     </div>
 
@@ -996,13 +1076,13 @@
 
 <div class="control-panel" id="panel">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-shrink:0;">
-    <h2 style="margin:0;">Ielas Statuss</h2>
+    <h2 class="sc-m0">Ielas Statuss</h2>
     <button onclick="closePanel()" style="background:none;border:none;color:var(--text-main);font-size:1.2rem;cursor:pointer;opacity:0.5;padding:0 4px;">✕</button>
   </div>
   <div class="panel-content">
-    <label class="option-card"><input type="checkbox" id="carsCheck"> <span style="margin-left:10px;">🚗 Netīrs braucējiem</span></label>
+    <label class="option-card"><input type="checkbox" id="carsCheck"> <span class="sc-ml10">🚗 Netīrs braucējiem</span></label>
     <div id="pedSection" style="opacity:0.5; border-top:1px solid var(--border); margin-top:15px; padding-top:15px;">
-      <label class="option-card"><input type="checkbox" id="pedCheck" disabled> <span style="margin-left:10px;">🚶 Netīrs gājējiem</span></label>
+      <label class="option-card"><input type="checkbox" id="pedCheck" disabled> <span class="sc-ml10">🚶 Netīrs gājējiem</span></label>
       <div id="pay-notice">
         <p style="font-size: 0.75rem; text-align: center;">Premium funkcija: 0.67€</p>
         <div id="paypal-guest-msg" style="display:none; font-size:0.78rem; text-align:center; opacity:0.7; padding:8px 0;">Pierakstieties, lai iegādātos Premium.</div>
@@ -1011,7 +1091,7 @@
     </div>
     <!-- Street history — admin only -->
     <div id="street-history-section" style="display:none; margin-top:15px; border-top:1px solid var(--border); padding-top:15px;">
-      <div style="font-weight:700; font-size:0.8rem; opacity:0.5; margin-bottom:8px;">📋 IZMAIŅU VĒSTURE</div>
+      <div class="sc-section-label">📋 IZMAIŅU VĒSTURE</div>
       <div id="street-history-list"></div>
     </div>
   </div>
@@ -1031,8 +1111,8 @@
   <div class="feed-header">
     <span>💬 Kopienas ziņas</span>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button onclick="refreshFeed()" title="Atjaunot" style="background:none;border:none;color:var(--text-main);font-size:1rem;cursor:pointer;opacity:0.5;">🔄</button>
-      <button onclick="toggleFeed()" style="background:none;border:none;color:var(--text-main);font-size:1rem;cursor:pointer;opacity:0.5;">✕</button>
+      <button class="sc-ghost-btn" onclick="refreshFeed()" title="Atjaunot">🔄</button>
+      <button class="sc-ghost-btn" onclick="toggleFeed()">✕</button>
     </div>
   </div>
   <div class="feed-compose" id="feed-compose">
@@ -1040,14 +1120,14 @@
     <div class="feed-compose-actions">
       <label class="feed-photo-label" title="Pievienot foto">
         📷
-        <input type="file" id="feed-photo-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)">
+        <input class="sc-hidden" type="file" id="feed-photo-input" accept="image/*" onchange="handlePhotoSelect(event)">
       </label>
       <div id="feed-photo-previews" style="display:flex; gap:4px; flex-wrap:wrap;"></div>
       <button class="feed-post-btn" onclick="submitPost()">Publicēt</button>
     </div>
   </div>
   <div id="pinned-announcement" style="display:none; flex-shrink:0; margin:0 12px 10px; padding:12px; background:rgba(0,122,255,0.1); border:1px solid var(--accent); border-radius:14px; font-size:0.85rem;">
-    <div style="font-weight:700; margin-bottom:4px;">📌 Paziņojums</div>
+    <div class="sc-bold-mb4">📌 Paziņojums</div>
     <div id="pinned-text"></div>
   </div>
   <div class="feed-list" id="feed-list">
@@ -1672,14 +1752,14 @@ function openGroupsList() {
   if (!auth.currentUser) return;
   openModal('groups-list-modal');
   const list = document.getElementById('groups-list');
-  list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+  list.innerHTML = '<div class="sc-muted-pad">Ielādē...</div>';
   if (groupsListListener) {
     database.ref(`user_groups/${auth.currentUser.uid}`).off('value', groupsListListener);
     groupsListListener = null;
   }
   groupsListListener = database.ref(`user_groups/${auth.currentUser.uid}`).on('value', snap => {
     const val = snap.val();
-    if (!val) { list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav grupu. Izveido pirmo!</div>'; return; }
+    if (!val) { list.innerHTML = '<div class="sc-muted-pad">Nav grupu. Izveido pirmo!</div>'; return; }
     const groups = Object.entries(val).sort((a, b) => (b[1].lastTs || 0) - (a[1].lastTs || 0));
     list.innerHTML = '';
     let hasUnread = false;
@@ -1735,7 +1815,7 @@ async function handleGroupMemberSearch() {
   const following = followingSnap.val() || {};
   const followers = followersSnap.val() || {};
   const mutuals = Object.keys(following).filter(uid => followers[uid]);
-  if (mutuals.length === 0) { results.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;padding:8px;">Nav savstarpējo sekotāju.</div>'; return; }
+  if (mutuals.length === 0) { results.innerHTML = '<div class="sc-muted-pad-sm">Nav savstarpējo sekotāju.</div>'; return; }
   // Fetch usernames and filter by query
   const userSnaps = await Promise.all(mutuals.map(uid => database.ref(`user_index/${uid}`).once('value')));
   results.innerHTML = '';
@@ -1749,9 +1829,9 @@ async function handleGroupMemberSearch() {
     const row = document.createElement('div');
     row.className = 'group-member-row';
     const gaEl = u.photoURL
-      ? `<img src="${u.photoURL}" class="group-avatar" style="width:32px;height:32px;" alt="${u.username}" onerror="this.style.display='none'">`
+      ? `<img src="${u.photoURL}" class="group-avatar sc-sz32" alt="${u.username}" onerror="this.style.display='none'">`
       : `<div class="group-avatar">${u.username[0].toUpperCase()}</div>`;
-    row.innerHTML = `${gaEl}<div style="flex:1;font-size:0.88rem;font-weight:600;">${u.username}</div><span style="font-size:0.75rem;opacity:0.4;">+</span>`;
+    row.innerHTML = `${gaEl}<div class="sc-flex1-name">${u.username}</div><span style="font-size:0.75rem;opacity:0.4;">+</span>`;
     row.onclick = () => {
       groupSelectedMembers[uid] = u.username;
       document.getElementById('group-member-search').value = '';
@@ -1760,7 +1840,7 @@ async function handleGroupMemberSearch() {
     };
     results.appendChild(row);
   });
-  if (results.innerHTML === '') results.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;padding:8px;">Nav rezultātu.</div>';
+  if (results.innerHTML === '') results.innerHTML = '<div class="sc-muted-pad-sm">Nav rezultātu.</div>';
 }
 
 function renderSelectedMembers() {
@@ -1838,12 +1918,16 @@ function openGroupChat(gid, name) {
         const wrap = document.createElement('div');
         wrap.className = `dm-bubble-wrap ${isMine ? 'sent' : 'received'}`;
         const senderAvatar = !isMine ? (msg.senderPhoto
-          ? `<img src="${msg.senderPhoto}" class="user-avatar-sm" alt="${msg.senderName}" style="margin-right:5px;" onerror="this.style.display='none'">`
-          : `<span class="user-avatar-sm" style="margin-right:5px;">${(msg.senderName||'?')[0].toUpperCase()}</span>`) : '';
+          ? `<img src="${msg.senderPhoto}" class="user-avatar-sm sc-mr5" alt="${msg.senderName}" onerror="this.style.display='none'">`
+          : `<span class="user-avatar-sm sc-mr5">${(msg.senderName||'?')[0].toUpperCase()}</span>`) : '';
         const nameLabel = !isMine ? `<div style="font-size:0.72rem;font-weight:700;opacity:0.6;margin-bottom:2px;display:flex;align-items:center;">${senderAvatar}${msg.senderName}</div>` : '';
-        const textHTML = msg.text ? `<div class="dm-bubble ${isMine ? 'sent' : 'received'}">${msg.text}</div>` : '';
+        const quoteHTML = buildReplyQuote(msg.replyTo);
+        const textHTML = msg.text ? `<div class="dm-bubble ${isMine ? 'sent' : 'received'}">${quoteHTML}${msg.text}</div>` : (quoteHTML ? `<div class="dm-bubble ${isMine ? 'sent' : 'received'}">${quoteHTML}</div>` : '');
         const photoHTML = msg.photo ? `<img src="${msg.photo}" onclick="openLightbox(this.src)" style="max-width:200px; border-radius:12px; margin-top:${msg.text ? '4px' : '0'}; cursor:zoom-in; display:block;">` : '';
-        wrap.innerHTML = `${nameLabel}${textHTML}${photoHTML}<div class="dm-bubble-meta">${timeAgo(msg.timestamp)}</div>`;
+        const replySnap = { senderName: msg.senderName, text: msg.text };
+        wrap.innerHTML = `${nameLabel}${textHTML}${photoHTML}
+          <div class="dm-bubble-meta">${timeAgo(msg.timestamp)} <button class="reply-btn" onclick='setGrpReply(${JSON.stringify(replySnap)})'>↩</button></div>
+        `;
         container.appendChild(wrap);
       });
       container.scrollTop = container.scrollHeight;
@@ -1878,7 +1962,7 @@ async function sendGroupMessage() {
   const myName = userProfile?.username || auth.currentUser.displayName || 'Lietotājs';
   const ts = Date.now();
   await database.ref(`group_messages/${currentGroupId}`).push({
-    senderUID: myUID, senderName: myName, senderPhoto: userProfile?.photoURL || null, text: text || null, photo: groupPhotoBase64 || null, timestamp: ts
+    senderUID: myUID, senderName: myName, senderPhoto: userProfile?.photoURL || null, text: text || null, photo: groupPhotoBase64 || null, timestamp: ts, replyTo: grpReplyTo || null
   });
   // Update user_groups for all members
   const membersSnap = await database.ref(`group_members/${currentGroupId}`).once('value');
@@ -1896,6 +1980,7 @@ async function sendGroupMessage() {
   await database.ref().update(updates);
   input.value = '';
   clearGroupPhoto();
+  clearGrpReply();
 }
 
 function handleGroupPhotoSelect(event) {
@@ -1960,11 +2045,11 @@ async function openGroupInfo() {
       removeBtn = `<button onclick="removeGroupMemberById('${uid}', '${m.username}')" style="background:none;border:none;color:#FF3B30;font-size:0.8rem;cursor:pointer;padding:2px 6px;">Noņemt</button>`;
     }
     const giAvatar = m.photoURL
-      ? `<img src="${m.photoURL}" class="group-avatar" style="width:32px;height:32px;" alt="${m.username}" onerror="this.style.display='none'">`
+      ? `<img src="${m.photoURL}" class="group-avatar sc-sz32" alt="${m.username}" onerror="this.style.display='none'">`
       : `<div class="group-avatar">${m.username[0].toUpperCase()}</div>`;
     row.innerHTML = `
       ${giAvatar}
-      <div style="flex:1;font-size:0.88rem;font-weight:600;">${m.username}${isMe ? ' (Tu)' : ''}${leaderBadge}</div>
+      <div class="sc-flex1-name">${m.username}${isMe ? ' (Tu)' : ''}${leaderBadge}</div>
       ${removeBtn}
     `;
     list.appendChild(row);
@@ -2191,18 +2276,18 @@ function applyStatus() {
 
 async function loadStreetHistory(streetId) {
   const list = document.getElementById('street-history-list');
-  list.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;">Ielādē...</div>';
+  list.innerHTML = '<div class="sc-muted-sm">Ielādē...</div>';
   const snap = await database.ref(`street_history/${streetId}`).orderByChild('timestamp').limitToLast(10).once('value');
   const val = snap.val();
   if (!val) {
-    list.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;">Nav vēstures.</div>';
+    list.innerHTML = '<div class="sc-muted-sm">Nav vēstures.</div>';
     return;
   }
   const entries = Object.values(val).reverse();
   list.innerHTML = entries.map(e => {
     const flags = [e.cars ? '🚗' : '', e.ped ? '🚶' : ''].filter(Boolean).join(' ') || '✅ Tīrs';
     return `<div style="padding:6px 0; border-bottom:1px solid var(--border); font-size:0.8rem;">
-      <span style="font-weight:700;">${e.username}</span>
+      <span class="sc-bold">${e.username}</span>
       <span style="opacity:0.5; margin-left:6px;">${timeAgo(e.timestamp)}</span>
       <div style="margin-top:2px;">${flags}</div>
     </div>`;
@@ -2512,7 +2597,7 @@ function loadComments(postId) {
       const div = document.createElement('div');
       div.className = 'comment-item';
       div.innerHTML = `
-        <div style="flex:1;">
+        <div class="sc-flex1">
           <span class="comment-author" onclick="openProfile('${c.uid}','${c.username}')">${c.username}${badge}</span>
           <span class="comment-meta"> · ${timeAgo(c.timestamp)}</span>
           <div class="comment-text">${c.text}</div>
@@ -2569,8 +2654,8 @@ function buildPostHTML(key, post, isOwner) {
   const photosHTML = photos.map(src => `<img class="feed-item-img" src="${src}" alt="foto" onclick="openLightbox(this.src)" style="cursor:zoom-in;">`).join('');
 
   const avatarImg = post.photoURL
-    ? `<img src="${post.photoURL}" class="user-avatar-sm" alt="${post.username}" style="margin-right:6px;" onerror="this.style.display='none'">`
-    : `<span class="user-avatar-sm" style="margin-right:6px;">${(post.username||'?')[0].toUpperCase()}</span>`;
+    ? `<img src="${post.photoURL}" class="user-avatar-sm sc-mr6" alt="${post.username}" onerror="this.style.display='none'">`
+    : `<span class="user-avatar-sm sc-mr6">${(post.username||'?')[0].toUpperCase()}</span>`;
   return `
     <div class="feed-item-header">
       <span class="feed-item-user" onclick="openProfile('${post.uid}', '${post.username}')" style="display:flex;align-items:center;">${avatarImg}${post.username}${badge}</span>
@@ -2619,7 +2704,7 @@ async function openProfile(uid, username) {
   document.getElementById('profile-bio').style.display = 'none';
   document.getElementById('profile-followers-num').innerText = '0';
   document.getElementById('profile-following-num').innerText = '0';
-  document.getElementById('profile-posts').innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+  document.getElementById('profile-posts').innerHTML = '<div class="sc-muted-pad">Ielādē...</div>';
 
   const isOwnProfile = auth.currentUser && auth.currentUser.uid === uid;
 
@@ -2695,7 +2780,7 @@ async function openProfile(uid, username) {
   const postsContainer = document.getElementById('profile-posts');
   postsContainer.innerHTML = '';
   const val = feedSnap.val();
-  if (!val) { postsContainer.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav ziņu.</div>'; return; }
+  if (!val) { postsContainer.innerHTML = '<div class="sc-muted-pad">Nav ziņu.</div>'; return; }
   Object.entries(val).reverse().forEach(([key, post]) => {
     const item = document.createElement('div');
     item.className = 'feed-item';
@@ -2763,11 +2848,11 @@ async function openFollowList(type) {
   openModal('follow-list-modal');
   document.getElementById('follow-list-title').innerText = type === 'followers' ? 'Sekotāji' : 'Seko';
   const container = document.getElementById('follow-list-items');
-  container.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+  container.innerHTML = '<div class="sc-muted-pad">Ielādē...</div>';
 
   const snap = await database.ref(type === 'followers' ? `followers/${uid}` : `following/${uid}`).once('value');
   const val = snap.val();
-  if (!val) { container.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav.</div>'; return; }
+  if (!val) { container.innerHTML = '<div class="sc-muted-pad">Nav.</div>'; return; }
 
   container.innerHTML = '';
   const uids = Object.keys(val);
@@ -2777,7 +2862,7 @@ async function openFollowList(type) {
     const name = uData?.username || 'Lietotājs';
     const item = document.createElement('div');
     item.style.cssText = 'padding:10px; cursor:pointer; border-radius:12px; transition:0.15s;';
-    item.innerHTML = `<span style="font-weight:700;">${name}</span>${uData?.isPremium ? ' ✨' : ''}`;
+    item.innerHTML = `<span class="sc-bold">${name}</span>${uData?.isPremium ? ' ✨' : ''}`;
     item.onmouseover = () => item.style.background = 'var(--input-bg)';
     item.onmouseout = () => item.style.background = '';
     item.onclick = () => { closeFollowList(); openProfile(u, name); };
@@ -2791,7 +2876,7 @@ function closeFollowList() { closeModal('follow-list-modal'); }
 function openUserSearch() {
   openModal('user-search-modal');
   document.getElementById('user-search-input').value = '';
-  document.getElementById('user-search-results').innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Raksti, lai meklētu...</div>';
+  document.getElementById('user-search-results').innerHTML = '<div class="sc-muted-pad">Raksti, lai meklētu...</div>';
   setTimeout(() => document.getElementById('user-search-input').focus(), 100);
 }
 
@@ -2801,24 +2886,24 @@ async function handleUserSearch() {
   const query = document.getElementById('user-search-input').value.trim().toLowerCase();
   const results = document.getElementById('user-search-results');
   if (query.length < 2) {
-    results.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Raksti, lai meklētu...</div>';
+    results.innerHTML = '<div class="sc-muted-pad">Raksti, lai meklētu...</div>';
     return;
   }
-  results.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Meklē...</div>';
+  results.innerHTML = '<div class="sc-muted-pad">Meklē...</div>';
   const snap = await database.ref('user_index').once('value');
   const val = snap.val();
-  if (!val) { results.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav rezultātu.</div>'; return; }
+  if (!val) { results.innerHTML = '<div class="sc-muted-pad">Nav rezultātu.</div>'; return; }
   const matches = Object.entries(val)
     .filter(([, u]) => u.username && u.username.toLowerCase().includes(query))
     .slice(0, 10);
-  if (matches.length === 0) { results.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav rezultātu.</div>'; return; }
+  if (matches.length === 0) { results.innerHTML = '<div class="sc-muted-pad">Nav rezultātu.</div>'; return; }
   results.innerHTML = '';
   matches.forEach(([uid, u]) => {
     const item = document.createElement('div');
     item.style.cssText = 'padding:10px 12px; cursor:pointer; border-radius:12px; transition:0.15s; display:flex; align-items:center; gap:10px;';
     item.innerHTML = `
-      <div style="flex:1;">
-        <div style="font-weight:700;">${u.username}${u.isPremium ? ' ✨' : ''}</div>
+      <div class="sc-flex1">
+        <div class="sc-bold">${u.username}${u.isPremium ? ' ✨' : ''}</div>
         ${u.bio ? `<div style="font-size:0.78rem;opacity:0.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">${u.bio}</div>` : ''}
       </div>
     `;
@@ -2841,13 +2926,13 @@ function openNotifications() {
   if (!auth.currentUser) return;
   openModal('notif-modal');
   const list = document.getElementById('notif-list');
-  list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+  list.innerHTML = '<div class="sc-muted-pad">Ielādē...</div>';
   if (notifListener) { database.ref(`notifications/${auth.currentUser.uid}`).off('value', notifListener); notifListener = null; }
   notifListener = database.ref(`notifications/${auth.currentUser.uid}`).orderByChild('timestamp').on('value', snap => {
     const val = snap.val();
     const badge = document.getElementById('notif-badge');
     if (!val) {
-      list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav paziņojumu.</div>';
+      list.innerHTML = '<div class="sc-muted-pad">Nav paziņojumu.</div>';
       badge.style.display = 'none';
       return;
     }
@@ -2966,12 +3051,14 @@ function openDMChat() {
         const isMine = msg.senderUID === auth.currentUser.uid;
         const wrap = document.createElement('div');
         wrap.className = `dm-bubble-wrap ${isMine ? 'sent' : 'received'}`;
-        const textHTML = msg.text ? `<div class="dm-bubble ${isMine ? 'sent' : 'received'}">${msg.text}</div>` : '';
+        const quoteHTML = buildReplyQuote(msg.replyTo);
+        const textHTML = msg.text ? `<div class="dm-bubble ${isMine ? 'sent' : 'received'}">${quoteHTML}${msg.text}</div>` : (quoteHTML ? `<div class="dm-bubble ${isMine ? 'sent' : 'received'}">${quoteHTML}</div>` : '');
         const photoHTML = msg.photo ? `<img src="${msg.photo}" onclick="openLightbox(this.src)" style="max-width:200px; border-radius:12px; margin-top:${msg.text ? '4px' : '0'}; cursor:zoom-in; display:block;">` : '';
         const receipt = isMine ? `<span style="font-size:0.65rem; opacity:0.5; margin-top:2px; display:block; text-align:right;">${msg.read ? '✓✓' : '✓'}</span>` : '';
-        wrap.innerHTML = `
-          ${textHTML}${photoHTML}
-          <div class="dm-bubble-meta">${isMine ? 'Tu' : msg.senderName} · ${timeAgo(msg.timestamp)}</div>
+        const replyBtnPos = isMine ? 'left' : 'right';
+        const replySnap = { senderName: msg.senderName || (isMine ? (userProfile?.username||'Tu') : currentDMOtherName), text: msg.text };
+        wrap.innerHTML = `${textHTML}${photoHTML}
+          <div class="dm-bubble-meta">${isMine ? 'Tu' : msg.senderName} · ${timeAgo(msg.timestamp)} <button class="reply-btn" onclick='setDMReply(${JSON.stringify(replySnap)})'>↩</button></div>
           ${receipt}
         `;
         container.appendChild(wrap);
@@ -2982,7 +3069,18 @@ function openDMChat() {
   });
 }
 
+
+// --- REPLY STATE ---
+let dmReplyTo = null;    // { senderName, text } | null
+let grpReplyTo = null;   // { senderName, text } | null
 let dmPhotoBase64 = null;
+
+function buildReplyQuote(replyTo) {
+  if (!replyTo) return '';
+  const preview = replyTo.text ? replyTo.text.slice(0, 60) + (replyTo.text.length > 60 ? '…' : '') : '📷 Foto';
+  return `<div class="reply-quote"><span class="reply-quote-name">${replyTo.senderName}</span><br>${preview}</div>`;
+}
+
 
 function handleDMPhotoSelect(event) {
   const file = event.target.files[0];
@@ -3023,7 +3121,7 @@ async function sendDM() {
   const myUID = auth.currentUser.uid;
   const myName = userProfile?.username || auth.currentUser.displayName || 'Lietotājs';
   await database.ref(`dms/${currentDMConvId}/messages`).push({
-    senderUID: myUID, senderName: myName, senderPhoto: userProfile?.photoURL || null, text: text || null, photo: dmPhotoBase64 || null, timestamp: Date.now(), read: false
+    senderUID: myUID, senderName: myName, senderPhoto: userProfile?.photoURL || null, text: text || null, photo: dmPhotoBase64 || null, timestamp: Date.now(), read: false, replyTo: dmReplyTo || null
   });
   const preview = text || (dmPhotoBase64 ? '📷 Foto' : '');
   const ts = Date.now();
@@ -3035,8 +3133,39 @@ async function sendDM() {
   });
   input.value = '';
   clearDMPhoto();
+  clearDMReply();
 }
 
+
+// --- REPLY HELPERS ---
+function setDMReply(snap) {
+  dmReplyTo = snap;
+  const bar = document.getElementById('dm-reply-bar');
+  if (!bar) return;
+  document.getElementById('dm-reply-name').textContent = snap.senderName + ': ';
+  document.getElementById('dm-reply-preview').textContent = snap.text ? snap.text.slice(0,80) : '📷 Foto';
+  bar.classList.add('active');
+  document.getElementById('dm-input').focus();
+}
+function clearDMReply() {
+  dmReplyTo = null;
+  const bar = document.getElementById('dm-reply-bar');
+  if (bar) bar.classList.remove('active');
+}
+function setGrpReply(snap) {
+  grpReplyTo = snap;
+  const bar = document.getElementById('grp-reply-bar');
+  if (!bar) return;
+  document.getElementById('grp-reply-name').textContent = snap.senderName + ': ';
+  document.getElementById('grp-reply-preview').textContent = snap.text ? snap.text.slice(0,80) : '📷 Foto';
+  bar.classList.add('active');
+  document.getElementById('group-input').focus();
+}
+function clearGrpReply() {
+  grpReplyTo = null;
+  const bar = document.getElementById('grp-reply-bar');
+  if (bar) bar.classList.remove('active');
+}
 function closeDM() {
   if (dmStatusListener) { dmStatusListener(); dmStatusListener = null; }
   if (dmListener) { database.ref(`dms/${currentDMConvId}/messages`).off('value', dmListener); dmListener = null; }
@@ -3437,11 +3566,11 @@ function openInbox() {
   if (!auth.currentUser) return;
   openModal('inbox-modal');
   const list = document.getElementById('inbox-list');
-  list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Ielādē...</div>';
+  list.innerHTML = '<div class="sc-muted-pad">Ielādē...</div>';
   if (inboxListener) { database.ref(`user_convs/${auth.currentUser.uid}`).off('value', inboxListener); inboxListener = null; }
   inboxListener = database.ref(`user_convs/${auth.currentUser.uid}`).on('value', snap => {
     const val = snap.val();
-    if (!val) { list.innerHTML = '<div style="opacity:0.4;font-size:0.85rem;padding:10px;">Nav sarunu.</div>'; return; }
+    if (!val) { list.innerHTML = '<div class="sc-muted-pad">Nav sarunu.</div>'; return; }
     const convs = Object.entries(val).sort((a, b) => (b[1].lastTs || 0) - (a[1].lastTs || 0));
     let hasUnread = false;
     list.innerHTML = '';
@@ -3450,8 +3579,8 @@ function openInbox() {
       const item = document.createElement('div');
       item.className = `inbox-item${meta.unread ? ' unread' : ''}`;
       const inboxAvatar = meta.otherPhotoURL
-        ? `<img src="${meta.otherPhotoURL}" class="user-avatar-sm" alt="${meta.otherName}" style="margin-right:8px;flex-shrink:0;" onerror="this.style.display='none'">`
-        : `<span class="user-avatar-sm" style="margin-right:8px;flex-shrink:0;">${(meta.otherName||'?')[0].toUpperCase()}</span>`;
+        ? `<img src="${meta.otherPhotoURL}" class="user-avatar-sm sc-mr8-noshrink" alt="${meta.otherName}" onerror="this.style.display='none'">`
+        : `<span class="user-avatar-sm sc-mr8-noshrink">${(meta.otherName||'?')[0].toUpperCase()}</span>`;
       const onlineDotId = 'inbox-dot-' + id;
       item.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><div style="position:relative;flex-shrink:0;">${inboxAvatar}<span id="${onlineDotId}" style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:#8E8E93;border:2px solid var(--bg-panel);display:none;"></span></div><div style="flex:1;min-width:0;"><div class="inbox-item-name">${meta.otherName}</div><div class="inbox-item-preview">${meta.lastMsg || ''}</div></div></div>`;
       item.onclick = () => { currentDMConvId = id; currentDMOtherUID = meta.otherUID; currentDMOtherName = meta.otherName; closeInbox(); openDMChat(); };
@@ -3535,7 +3664,7 @@ loadStreets();
 <div class="modal-overlay" id="pfp-crop-modal" style="z-index:9999;">
   <div class="modal-card" style="width:340px;display:flex;flex-direction:column;align-items:center;gap:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-      <h2 style="margin:0;">✂️ Apgriezt bildi</h2>
+      <h2 class="sc-m0">✂️ Apgriezt bildi</h2>
       <button onclick="closePfpCrop()" class="btn-small">X</button>
     </div>
     <div style="position:relative;width:280px;height:280px;overflow:hidden;border-radius:12px;background:#000;touch-action:none;" id="pfp-crop-area">
@@ -3555,9 +3684,9 @@ loadStreets();
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;width:100%;">
-      <span style="font-size:0.75rem;opacity:0.5;">🔍</span>
-      <input type="range" id="pfp-crop-zoom" min="1" max="3" step="0.01" value="1" style="flex:1;" oninput="pfpUpdateTransform()">
-      <span style="font-size:0.75rem;opacity:0.5;">🔎</span>
+      <span class="sc-text-xs-muted">🔍</span>
+      <input class="sc-flex1" type="range" id="pfp-crop-zoom" min="1" max="3" step="0.01" value="1" oninput="pfpUpdateTransform()">
+      <span class="sc-text-xs-muted">🔎</span>
     </div>
     <button class="btn-apply" onclick="pfpConfirmCrop()" style="width:100%;margin:0;">Apstiprināt</button>
   </div>
